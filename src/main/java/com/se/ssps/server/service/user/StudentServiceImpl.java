@@ -11,8 +11,10 @@ import org.springframework.stereotype.Service;
 import com.se.ssps.server.entity.PaymentLog;
 import com.se.ssps.server.entity.Printer;
 import com.se.ssps.server.entity.PrintingLog;
+import com.se.ssps.server.entity.configuration.FileType;
 import com.se.ssps.server.entity.configuration.PageUnitPrice;
 import com.se.ssps.server.entity.user.Student;
+import com.se.ssps.server.repository.FileTypeRepository;
 import com.se.ssps.server.repository.PageUnitRepo;
 import com.se.ssps.server.repository.PaymentLogRepository;
 import com.se.ssps.server.repository.PrinterRepository;
@@ -36,57 +38,139 @@ public class StudentServiceImpl implements StudentService {
     @Autowired
     PaymentLogRepository paymentLogRepository;
 
+    @Autowired
+    private FileTypeRepository fileTypeRepository;
 
+
+
+
+    public Student findStudentByUsername(String username) {
+        return studentRepository.findByUsername(username);
+    }
 
     @Override
     public void addPrintingLog(ArrayList<PrintingLog> printingLog, String printerID, String id) {
-        for (PrintingLog log : printingLog) {
-            // Tìm Student
-            Student student = studentRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Student not found"));
+    for (PrintingLog log : printingLog) {
+        // Tìm Student
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
 
-            // Tìm Printer
-            Printer printer = printerRepository.findById(printerID)
-                    .orElseThrow(() -> new RuntimeException("Printer not found"));
+        // Tìm Printer
+        Printer printer = printerRepository.findById(printerID)
+                .orElseThrow(() -> new RuntimeException("Printer not found"));
 
-            // Cập nhật balance của Student
-            int remainingPages = student.getBalance() - log.getNumOfPages() * log.getNumOfCopies();
-            student.setBalance(remainingPages);
+        // Lấy danh sách các file type hợp lệ
+        List<FileType> allowedFileTypes = fileTypeRepository.findAll();
+        List<String> allowedExtensions = allowedFileTypes.stream()
+                .map(FileType::getFileTypeName)
+                .toList();
 
-            // Lưu log vào database
-            printingLogRepository.save(log);
-
-            // Lưu lại thông tin Student để cập nhật danh sách printingLogs
-            student.getPrintingLogs().add(log);
-
-
-            studentRepository.save(student);
-
-            // Cập nhật thông tin log
-            log.setStartDate(LocalDateTime.now());
-            log.setEndDate(LocalDateTime.now().plusSeconds(log.getNumOfPages() * log.getNumOfCopies() * 5));
-            log.setStudent(student);
-            log.setPrinter(printer);
-
-            // Lưu log vào database
-            printingLogRepository.save(log);
-
-            // Cập nhật thông tin Printer
-            printer.setInkAmount(printer.getInkAmount() - log.getNumOfPages() * log.getNumOfCopies() / 20);
-            printer.setPageAmount(printer.getPageAmount() - log.getNumOfPages() * log.getNumOfCopies());
-
-            if (printer.getInkAmount() <= 0)
-                printer.setInkAmount(100);
-            if (printer.getPageAmount() <= 0)
-                printer.setPageAmount(10000);
-
-            // Thêm log vào danh sách
-            printer.getPrintingLogs().add(log);
-            // Lưu lại thông tin Printer
-            printerRepository.save(printer);
+        // Kiểm tra tên file
+        String fileName = log.getFileName();
+        if (fileName == null || fileName.isEmpty()) {
+            throw new RuntimeException("File name cannot be empty.");
         }
 
+        // Xử lý phần mở rộng file
+        int lastDotIndex = fileName.lastIndexOf('.');
+        if (lastDotIndex == -1 || lastDotIndex == fileName.length() - 1) {
+            throw new RuntimeException("File '" + fileName + "' has no valid extension.");
+        }
+
+        // Lấy phần mở rộng file
+        String fileExtension = fileName.substring(lastDotIndex + 1);
+
+        // Kiểm tra phần mở rộng có hợp lệ không
+        if (!allowedExtensions.contains(fileExtension)) {
+            throw new RuntimeException("File type '" + fileExtension + "' is not allowed for printing.");
+        }
+
+        // Cập nhật balance của Student
+        int remainingPages = student.getBalance() - log.getNumOfPages() * log.getNumOfCopies();
+        student.setBalance(remainingPages);
+
+        // Lưu log vào database
+        printingLogRepository.save(log);
+
+        // Lưu lại thông tin Student để cập nhật danh sách printingLogs
+        student.getPrintingLogs().add(log);
+        studentRepository.save(student);
+
+        // Cập nhật thông tin log
+        log.setStartDate(LocalDateTime.now());
+        log.setEndDate(LocalDateTime.now().plusSeconds(log.getNumOfPages() * log.getNumOfCopies() * 5));
+        log.setStudent(student);
+        log.setPrinter(printer);
+
+        // Lưu log vào database
+        printingLogRepository.save(log);
+
+        // Cập nhật thông tin Printer
+        printer.setInkAmount(printer.getInkAmount() - log.getNumOfPages() * log.getNumOfCopies() / 20);
+        printer.setPageAmount(printer.getPageAmount() - log.getNumOfPages() * log.getNumOfCopies());
+
+        if (printer.getInkAmount() <= 0)
+            printer.setInkAmount(100);
+        if (printer.getPageAmount() <= 0)
+            printer.setPageAmount(10000);
+
+        // Thêm log vào danh sách
+        printer.getPrintingLogs().add(log);
+
+        // Lưu lại thông tin Printer
+        printerRepository.save(printer);
     }
+}
+
+    // @Override
+    // public void addPrintingLog(ArrayList<PrintingLog> printingLog, String printerID, String id) {
+    //     for (PrintingLog log : printingLog) {
+    //         // Tìm Student
+    //         Student student = studentRepository.findById(id)
+    //                 .orElseThrow(() -> new RuntimeException("Student not found"));
+
+    //         // Tìm Printer
+    //         Printer printer = printerRepository.findById(printerID)
+    //                 .orElseThrow(() -> new RuntimeException("Printer not found"));
+
+    //         // Cập nhật balance của Student
+    //         int remainingPages = student.getBalance() - log.getNumOfPages() * log.getNumOfCopies();
+    //         student.setBalance(remainingPages);
+
+    //         // Lưu log vào database
+    //         printingLogRepository.save(log);
+
+    //         // Lưu lại thông tin Student để cập nhật danh sách printingLogs
+    //         student.getPrintingLogs().add(log);
+
+
+    //         studentRepository.save(student);
+
+    //         // Cập nhật thông tin log
+    //         log.setStartDate(LocalDateTime.now());
+    //         log.setEndDate(LocalDateTime.now().plusSeconds(log.getNumOfPages() * log.getNumOfCopies() * 5));
+    //         log.setStudent(student);
+    //         log.setPrinter(printer);
+
+    //         // Lưu log vào database
+    //         printingLogRepository.save(log);
+
+    //         // Cập nhật thông tin Printer
+    //         printer.setInkAmount(printer.getInkAmount() - log.getNumOfPages() * log.getNumOfCopies() / 20);
+    //         printer.setPageAmount(printer.getPageAmount() - log.getNumOfPages() * log.getNumOfCopies());
+
+    //         if (printer.getInkAmount() <= 0)
+    //             printer.setInkAmount(100);
+    //         if (printer.getPageAmount() <= 0)
+    //             printer.setPageAmount(10000);
+
+    //         // Thêm log vào danh sách
+    //         printer.getPrintingLogs().add(log);
+    //         // Lưu lại thông tin Printer
+    //         printerRepository.save(printer);
+    //     }
+
+    // }
 
     // @Override
     // public void addPrintingLog(ArrayList<PrintingLog> printingLog, String printerID, String id) {

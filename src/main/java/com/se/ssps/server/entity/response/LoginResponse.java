@@ -1,27 +1,22 @@
 package com.se.ssps.server.entity.response;
 
-import com.se.ssps.server.entity.user.User;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.annotation.Id;
-
+//import com.se.ssps.server.entity.user.User;
+// import org.springframework.data.mongodb.core.mapping.Document;
+// import org.springframework.data.annotation.Id;
+//import com.se.ssps.server.entity.user.Student;
 import lombok.AllArgsConstructor;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
-@Document(collection = "login_responses") // Đặt tên collection trong MongoDB
+@NoArgsConstructor
+@AllArgsConstructor
 public class LoginResponse {
-
-    @Id
-    private String id; // Trường ID trong MongoDB (có thể sử dụng String hoặc ObjectId)
-
-    private User user;
-    private boolean isCorrectPass;
-    private String errorMessage; // Thêm trường này để hiển thị lỗi
+    private Object user; // Dùng kiểu Object để hỗ trợ cả Admin và Student
+    private boolean correctPass;
 }
 
 

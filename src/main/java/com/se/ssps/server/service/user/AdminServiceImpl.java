@@ -97,6 +97,15 @@ public class AdminServiceImpl implements AdminService {
 
     // =====================================================================================
     // =====================================================================================
+
+    
+
+ 
+
+    public Admin findAdminByUsername(String username) {
+        return adminRepository.findByUsername(username);
+    }
+
     // Thao tác đối với máy in
     @Override
     public List<Printer> findAllPrinter() {

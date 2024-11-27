@@ -1,16 +1,16 @@
-package com.se.ssps.server.repository.user;
+// package com.se.ssps.server.repository.user;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
-import com.se.ssps.server.entity.user.User;
+// import org.springframework.data.mongodb.repository.MongoRepository;
+// import org.springframework.stereotype.Repository;
+// import com.se.ssps.server.entity.user.User;
 
-@Repository
-public interface UserRepository extends MongoRepository<User, String> {
-    // Truy vấn tìm User theo username
-    User findByUsername(String username);
+// @Repository
+// public interface UserRepository extends MongoRepository<User, String> {
+//     // Truy vấn tìm User theo username
+//     User findByUsername(String username);
 
     
-}
+// }
 /*
  * Lớp `BuildingRepository` mà bạn đã định nghĩa là một interface để thực hiện
  * các thao tác với MongoDB đối với entity `Building`. Nó kế thừa từ

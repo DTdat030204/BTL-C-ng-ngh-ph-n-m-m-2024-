@@ -4,10 +4,13 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
 
+// import org.slf4j.Logger;
+// import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+//import org.springframework.web.server.ResponseStatusException;
 
 import com.se.ssps.server.entity.user.Admin;
 import com.se.ssps.server.dto.PrinterDto;
@@ -24,36 +27,70 @@ import com.se.ssps.server.entity.configuration.MaxFileSize;
 import com.se.ssps.server.entity.configuration.PageAllocation;
 import com.se.ssps.server.entity.configuration.PageUnitPrice;
 import com.se.ssps.server.entity.configuration.Room;
+import com.se.ssps.server.entity.response.LoginResponse;
 //import com.se.ssps.server.entity.response.LoginResponse;
 import com.se.ssps.server.service.user.AdminService;
 import com.se.ssps.server.stat.ChartValue;
+
+
 
 @CrossOrigin
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
+    
     @Autowired
     AdminService adminService;
+
+        @PostMapping("/login")
+        public ResponseEntity<?> loginAdmin(@RequestBody Admin admin) {
+            LoginResponse loginResponse = new LoginResponse();
+            try {
+                // Tìm Admin dựa trên username
+                Admin foundAdmin = adminService.findAdminByUsername(admin.getUsername());
+                if (foundAdmin != null) {
+                    // So sánh password
+                    if (foundAdmin.getPassword().equals(admin.getPassword())) {
+                        loginResponse.setUser(foundAdmin);
+                        loginResponse.setCorrectPass(true);
+                        return ResponseEntity.ok(loginResponse); // Đăng nhập thành công
+                    }
+                    // Mật khẩu sai
+                    loginResponse.setUser(foundAdmin);
+                    loginResponse.setCorrectPass(false);
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Sai mật khẩu"); // Trả về thông báo sai mật khẩu
+                }
+                // Nếu không tìm thấy Admin
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Admin không tồn tại"); // Trả về thông báo không tìm thấy admin
+            } catch (Exception e) {
+                // Lỗi hệ thống
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Lỗi hệ thống: " + e.getMessage()); // Trả về thông báo lỗi hệ thống
+            }
+        }
+    
+    
+
+   
 
     @GetMapping("/config")
     public Config configStat() {
         return adminService.getAllConfig();
     }
 
-    
     // API để đăng ký Admin mới
     @PostMapping("/register")
     public ResponseEntity<String> registerAdmin(@RequestBody Admin admin) {
         try {
             Admin newAdmin = adminService.registerAdmin(admin);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Admin registered successfully with ID: " + newAdmin.getId());
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body("Admin registered successfully with ID: " + newAdmin.getId());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }
     }
-    
-
-
 
     @PostMapping("/file-size")
     public MaxFileSize setMaxFileSize(@RequestParam(name = "size") double maxFileSize) {
@@ -183,9 +220,6 @@ public class AdminController {
     public Room addRoom(@RequestParam(name = "building-name") String buildingName, @RequestBody Room room) {
         return adminService.addRoom(buildingName, room);
     }
-    
-    
-    
 
     @DeleteMapping("/deleteroom")
     public Map<String, Boolean> deleteRoom(@RequestParam String id) {

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 //import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 // import org.springframework.web.bind.annotation.CrossOrigin;
@@ -29,12 +30,30 @@ public class StudentController {
     StudentService studentService;
 
     @PostMapping("/print")
-    public void printDoc(@RequestBody ArrayList<PrintingLog> printingLog,
-            @RequestParam(name = "printer-id") String printerID,
-            @PathVariable String id) {
+    // public void printDoc(@RequestBody ArrayList<PrintingLog> printingLog,
+    //         @RequestParam(name = "printer-id") String printerID,
+    //         @PathVariable String id) {
+    //     studentService.addPrintingLog(printingLog, printerID, id);
+
+    // }
+public ResponseEntity<?> printDoc(
+        @RequestBody ArrayList<PrintingLog> printingLog,
+        @RequestParam(name = "printer-id") String printerID,
+        @PathVariable String id) {
+    try {
+        // Gọi service để xử lý in
         studentService.addPrintingLog(printingLog, printerID, id);
-        
+
+        // Nếu thành công, trả về thông báo thành công
+        return ResponseEntity.ok().body("Documents printed successfully.");
+    } catch (RuntimeException e) {
+        // Nếu lỗi, trả về phản hồi với thông báo lỗi
+        return ResponseEntity
+                .badRequest()
+                .body(e.getMessage());
     }
+}
+
 
     @GetMapping("/printing-logs")
     public List<PrintingLog> listOfPrintingLogs(@PathVariable String id) {

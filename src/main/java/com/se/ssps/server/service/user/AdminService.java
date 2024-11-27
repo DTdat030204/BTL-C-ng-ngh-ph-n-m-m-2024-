@@ -120,4 +120,6 @@ public interface AdminService {
 
     public Admin registerAdmin(Admin admin);
 
+    public Admin findAdminByUsername(String username);
+
 }

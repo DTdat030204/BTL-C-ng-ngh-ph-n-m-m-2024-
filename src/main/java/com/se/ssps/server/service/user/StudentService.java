@@ -29,5 +29,7 @@ public interface StudentService {
     public List<PaymentLog> listOfPaymentLogs(String id);
     
     public Student registerStudent(Student student) throws Exception; // Đăng ký student mới
+
+    public Student findStudentByUsername(String username);
     
 }

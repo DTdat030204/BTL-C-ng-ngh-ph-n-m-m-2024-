@@ -5,6 +5,15 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import com.se.ssps.server.entity.user.Student;
 
+
+import org.springframework.stereotype.Repository;
+
+//import com.se.ssps.server.entity.user.Student;
+
+@Repository
+public interface StudentRepository extends MongoRepository<Student, String> {
+    Student findByUsername(String username);
+}
 // public interface StudentRepository extends MongoRepository<Student, Integer> {
 //     // Truy vấn sinh viên theo ID, MongoDB sẽ tự động tìm kiếm theo trường "_id"
 //     public Student findStudentById(Integer id);
@@ -15,15 +24,6 @@ import com.se.ssps.server.entity.user.Student;
 //     @Query("{ '_id' : ?0 }")
 //     public void updateNumOfPages(Integer id, Integer numOfPages);
 // }
-
-import org.springframework.stereotype.Repository;
-
-//import com.se.ssps.server.entity.user.Student;
-
-@Repository
-public interface StudentRepository extends MongoRepository<Student, String> {
-    Student findByUsername(String username);
-}
 
 /*
  * Đoạn mã này định nghĩa một **repository** trong Spring Data MongoDB có tên là

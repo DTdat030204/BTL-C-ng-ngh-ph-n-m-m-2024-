@@ -23,7 +23,7 @@ public class PrintingLog {
 
     private String fileName;
 
-    private double size;
+    private Double size;
 
     private Integer numOfPages;
 

@@ -1,29 +1,40 @@
 package com.se.ssps.server.controller;
 
-import javax.security.auth.login.LoginException;
+//import javax.security.auth.login.LoginException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 // import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+//import org.springframework.web.server.ResponseStatusException;
 
 import com.se.ssps.server.dto.StudentRegistrationRequest;
 import com.se.ssps.server.entity.response.LoginResponse;
 import com.se.ssps.server.entity.user.Student;
 //import com.se.ssps.server.entity.user.Admin;
-import com.se.ssps.server.entity.user.User;
-import com.se.ssps.server.service.user.UserService;
+// import com.se.ssps.server.entity.user.User;
+// import com.se.ssps.server.service.user.UserService;
 
 import com.se.ssps.server.service.user.StudentService;
+
+
+
+
 @RestController
 @CrossOrigin
 public class HomeController {
 
-    @Autowired
-    UserService userService;
+    // @Autowired
+    // UserService userService;
+
+
+
+
 
     @GetMapping("/index")
     public String homePage() {
@@ -51,40 +62,67 @@ public class HomeController {
     //     return response;
     // }
 
-
-    @PostMapping("/login")
-    public LoginResponse login_proccess(@RequestBody User user) throws LoginException {
-        LoginResponse loginResponse = new LoginResponse();
-        User findUser = userService.findUser(user.getUsername());
-        if (findUser != null) {
-            if (findUser.getPassword().equals(user.getPassword())) {
-                loginResponse.setUser(findUser);
-                System.out.println(loginResponse.getUser().getUsername());
-                loginResponse.setCorrectPass(true);
-                return loginResponse;
-            }
-            loginResponse.setUser(findUser);
-            loginResponse.setCorrectPass(false);
-            return loginResponse;
-        }
-        return loginResponse;
-    }
-
-
-
+    // @PostMapping("/login")
+    // public LoginResponse login_proccess(@RequestBody User user) throws LoginException {
+    //     LoginResponse loginResponse = new LoginResponse();
+    //     User findUser = userService.findUser(user.getUsername());
+    //     if (findUser != null) {
+    //         if (findUser.getPassword().equals(user.getPassword())) {
+    //             loginResponse.setUser(findUser);
+    //             System.out.println(loginResponse.getUser().getUsername());
+    //             loginResponse.setCorrectPass(true);
+    //             return loginResponse;
+    //         }
+    //         loginResponse.setUser(findUser);
+    //         loginResponse.setCorrectPass(false);
+    //         return loginResponse;
+    //     }
+    //     return loginResponse;
+    // }
     @Autowired
-    private StudentService studentService;
+        private StudentService studentService;
+
+       @PostMapping("/login")
+public ResponseEntity<?> loginStudent(@RequestBody Student student) {
+    LoginResponse loginResponse = new LoginResponse();
+    try {
+        // Tìm Student dựa trên username
+        Student foundStudent = studentService.findStudentByUsername(student.getUsername());
+        if (foundStudent != null) {
+            // So sánh password
+            if (foundStudent.getPassword().equals(student.getPassword())) {
+                loginResponse.setUser(foundStudent);
+                loginResponse.setCorrectPass(true);
+                return ResponseEntity.ok(loginResponse); // Đăng nhập thành công
+            }
+            // Mật khẩu sai
+            loginResponse.setUser(foundStudent);
+            loginResponse.setCorrectPass(false);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body("Sai mật khẩu"); // Trả về thông báo sai mật khẩu
+        }
+        // Nếu không tìm thấy Student
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                             .body("Student không tồn tại"); // Trả về thông báo không tìm thấy student
+    } catch (Exception e) {
+        // Lỗi hệ thống
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("Lỗi hệ thống: " + e.getMessage()); // Trả về thông báo lỗi hệ thống
+    }
+}
+        
+        
+   
 
     @PostMapping("/register")
     public Student registerStudent(@RequestBody StudentRegistrationRequest request) {
         try {
             Student student = new Student(
-                request.getFirstName(),
-                request.getLastName(),
-                request.getUsername(),
-                request.getPassword(),
-                request.getStudentNumber()
-            );
+                    request.getFirstName(),
+                    request.getLastName(),
+                    request.getUsername(),
+                    request.getPassword(),
+                    request.getStudentNumber());
             return studentService.registerStudent(student);
         } catch (Exception e) {
             throw new RuntimeException("Failed to register student: " + e.getMessage());
