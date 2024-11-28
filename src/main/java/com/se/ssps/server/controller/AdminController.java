@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 //import org.springframework.web.server.ResponseStatusException;
 
 import com.se.ssps.server.entity.user.Admin;
-import com.se.ssps.server.dto.PrinterDto;
+//import com.se.ssps.server.dto.PrinterDto;
 //import com.se.ssps.server.dto.AdminRegistrationRequest;
 import com.se.ssps.server.entity.Config;
 import com.se.ssps.server.entity.PaymentLog;
@@ -125,10 +125,10 @@ public class AdminController {
         return adminService.findAllPrinter();
     }
 
-    @GetMapping("/printer-stat")
-    public List<PrinterDto> listOfPrinterWithStat() {
-        return adminService.findAllPrinterStat();
-    }
+    // @GetMapping("/printer-stat")
+    // public List<PrinterDto> listOfPrinterWithStat() {
+    //     return adminService.findAllPrinterStat();
+    // }
 
     // Thêm một máy in mới
     @PostMapping("/addprinter")
@@ -227,6 +227,8 @@ public class AdminController {
     }
 
     // =====================================================================================
+
+
     // =====================================================================================
     // Hiện thị thông tin danh sách lịch sử in
     @GetMapping("/printing-logs")

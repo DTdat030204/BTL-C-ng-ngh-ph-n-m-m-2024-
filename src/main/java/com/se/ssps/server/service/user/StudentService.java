@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.se.ssps.server.dto.PrinterStudentDto;
 // import com.se.ssps.server.entity.File;
 import com.se.ssps.server.entity.PaymentLog;
 import com.se.ssps.server.entity.PrintingLog;
@@ -31,5 +32,7 @@ public interface StudentService {
     public Student registerStudent(Student student) throws Exception; // Đăng ký student mới
 
     public Student findStudentByUsername(String username);
+
+    public List<PrinterStudentDto> findAllPrinterForStudents();
     
 }

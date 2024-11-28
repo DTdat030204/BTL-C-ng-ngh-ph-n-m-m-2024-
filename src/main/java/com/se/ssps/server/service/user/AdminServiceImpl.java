@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import com.se.ssps.server.entity.user.Admin;
 // import com.se.ssps.server.entity.user.User;
 // import com.se.ssps.server.dto.AdminRegistrationRequest;
-import com.se.ssps.server.dto.PrinterDto;
+//import com.se.ssps.server.dto.PrinterDto;
 import com.se.ssps.server.entity.Config;
 import com.se.ssps.server.entity.PageSize;
 import com.se.ssps.server.entity.PaymentLog;
@@ -764,22 +764,22 @@ public class AdminServiceImpl implements AdminService {
     }
     //********************************************************************* */
 
-    @Override
-    public List<PrinterDto> findAllPrinterStat() {
-        List<PrinterDto> returnList = new ArrayList<>();
-        List<Printer> printerList = printerRepository.findAll(); // MongoDB: Tìm tất cả máy in
+    // @Override
+    // public List<PrinterDto> findAllPrinterStat() {
+    //     List<PrinterDto> returnList = new ArrayList<>();
+    //     List<Printer> printerList = printerRepository.findAll(); // MongoDB: Tìm tất cả máy in
 
-        for (Printer printer : printerList) {
-            PrinterDto newValue = new PrinterDto(printer);
+    //     for (Printer printer : printerList) {
+    //         PrinterDto newValue = new PrinterDto(printer);
 
-            // Sử dụng aggregate hoặc tính toán diện tích in bằng MongoDB repository
-            Double squarePrinting = printingLogRepository.totalSquare(printer.getId());
-            newValue.setSquarePringting(squarePrinting);
+    //         // Sử dụng aggregate hoặc tính toán diện tích in bằng MongoDB repository
+    //         Double squarePrinting = printingLogRepository.totalSquare(printer.getId());
+    //         newValue.setSquarePringting(squarePrinting);
 
-            returnList.add(newValue);
-        }
-        return returnList;
-    }
+    //         returnList.add(newValue);
+    //     }
+    //     return returnList;
+    // }
 
     @Autowired
     public AdminRepository adminRepository;

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.se.ssps.server.entity.user.Admin;
 //import com.se.ssps.server.repository.AdminRepository;
-import com.se.ssps.server.dto.PrinterDto;
+//import com.se.ssps.server.dto.PrinterDto;
 import com.se.ssps.server.entity.Config;
 import com.se.ssps.server.entity.PaymentLog;
 import com.se.ssps.server.entity.Printer;
@@ -38,7 +38,7 @@ public interface AdminService {
 
     public Map<String, Boolean> updatePrinter(Printer newPrinter, String roomId);
 
-    public List<PrinterDto> findAllPrinterStat();
+    //public List<PrinterDto> findAllPrinterStat();
 
     // =====================================================================================
     // ================================================================================

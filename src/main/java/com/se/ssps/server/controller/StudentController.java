@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.se.ssps.server.dto.PrinterStudentDto;
 import com.se.ssps.server.entity.PaymentLog;
 // import com.se.ssps.server.entity.File;
 import com.se.ssps.server.entity.PrintingLog;
@@ -73,5 +74,10 @@ public class StudentController {
     @GetMapping("/info")
     public Student studentInfo(@PathVariable String id) {
         return studentService.getStudentInfo(id);
+    }
+
+    @GetMapping("/printers")
+    public List<PrinterStudentDto> getPrintersForStudents() {
+        return studentService.findAllPrinterForStudents();
     }
 }

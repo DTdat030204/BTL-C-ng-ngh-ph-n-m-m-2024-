@@ -3,10 +3,12 @@ package com.se.ssps.server.service.user;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.se.ssps.server.dto.PrinterStudentDto;
 // import com.se.ssps.server.entity.File;
 import com.se.ssps.server.entity.PaymentLog;
 import com.se.ssps.server.entity.Printer;
@@ -20,6 +22,8 @@ import com.se.ssps.server.repository.PaymentLogRepository;
 import com.se.ssps.server.repository.PrinterRepository;
 import com.se.ssps.server.repository.PrintingLogRepository;
 import com.se.ssps.server.repository.StudentRepository;
+
+//import com.se.ssps.server.dto.PrinterStudentDto;
 
 import com.se.ssps.server.healper.PrinterHelper;
 
@@ -329,10 +333,25 @@ public void updatePrice(String id, Integer newPrice) {
 
     // Cập nhật giá trị price
     pageUnitPrice.setPrice(newPrice);
-    
+
     // Lưu lại vào MongoDB
     pageUnitRepo.save(pageUnitPrice);
 }
+
+    @Override
+    public List<PrinterStudentDto> findAllPrinterForStudents() {
+        // Lấy tất cả máy in
+        List<Printer> printers = printerRepository.findAll();
+        // Chuyển đổi sang DTO chỉ chứa thông tin cần thiết
+        return printers.stream()
+                .map(printer -> new PrinterStudentDto(
+                        printer.getStatus(),
+                        printer.getId(),
+                        printer.getRoom() != null ? printer.getRoom().getRoomName() : "Unknown" // Kiểm tra null để tránh lỗi
+                    
+                ))
+                .collect(Collectors.toList());
+    }
 
 
 }
