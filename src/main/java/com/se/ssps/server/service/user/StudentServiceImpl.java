@@ -377,12 +377,16 @@ public class StudentServiceImpl implements StudentService {
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
-        // Cập nhật số dư của student
+        // Cập nhật số giấy dư của student
         student.setBalance(student.getBalance() + paymentLog.getNumOfPages());
 
         // Lấy giá trị price từ PageUnitPrice với id là "1"
         PageUnitPrice pageUnitPrice = pageUnitRepo.findById("1")
                 .orElseThrow(() -> new RuntimeException("PageUnitPrice not found"));
+
+          // Tính toán số tiền cần thanh toán
+        int amountToAdd = paymentLog.getNumOfPages() * pageUnitPrice.getValue();
+        student.setOutstandingAmount(student.getOutstandingAmount() + amountToAdd);
 
         // Thiết lập giá trị unitPrice cho paymentLog
         paymentLog.setStudent(student);
