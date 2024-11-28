@@ -57,80 +57,86 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public void addPrintingLog(ArrayList<PrintingLog> printingLog, String printerID, String id) {
-    for (PrintingLog log : printingLog) {
-        // Tìm Student
-        Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+        for (PrintingLog log : printingLog) {
+            // Tìm Student
+            Student student = studentRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Student not found"));
 
-        // Tìm Printer
-        Printer printer = printerRepository.findById(printerID)
-                .orElseThrow(() -> new RuntimeException("Printer not found"));
+            // Tìm Printer
+            Printer printer = printerRepository.findById(printerID)
+                    .orElseThrow(() -> new RuntimeException("Printer not found"));
 
-        // Lấy danh sách các file type hợp lệ
-        List<FileType> allowedFileTypes = fileTypeRepository.findAll();
-        List<String> allowedExtensions = allowedFileTypes.stream()
-                .map(FileType::getFileTypeName)
-                .toList();
+            // Lấy danh sách các file type hợp lệ
+            List<FileType> allowedFileTypes = fileTypeRepository.findAll();
+            List<String> allowedExtensions = allowedFileTypes.stream()
+                    .map(FileType::getFileTypeName)
+                    .toList();
 
-        // Kiểm tra tên file
-        String fileName = log.getFileName();
-        if (fileName == null || fileName.isEmpty()) {
-            throw new RuntimeException("File name cannot be empty.");
+            // Kiểm tra tên file
+            String fileName = log.getFileName();
+            if (fileName == null || fileName.isEmpty()) {
+                throw new RuntimeException("File name cannot be empty.");
+            }
+
+            // Xử lý phần mở rộng file
+            int lastDotIndex = fileName.lastIndexOf('.');
+            if (lastDotIndex == -1 || lastDotIndex == fileName.length() - 1) {
+                throw new RuntimeException("File '" + fileName + "' has no valid extension.");
+            }
+
+            // Lấy phần mở rộng file
+            String fileExtension = fileName.substring(lastDotIndex + 1);
+
+            // Kiểm tra phần mở rộng có hợp lệ không
+            if (!allowedExtensions.contains(fileExtension)) {
+                throw new RuntimeException("File type '" + fileExtension + "' is not allowed for printing.");
+            }
+
+            // Tính toán số trang và kiểm tra balance
+            int requiredPages = log.getNumOfPages() * log.getNumOfCopies();
+            if (student.getBalance() < requiredPages) {
+                throw new RuntimeException("Insufficient balance. Please purchase more pages.");
+            }
+
+            // Cập nhật balance của Student
+            int remainingBalance = student.getBalance() - requiredPages;
+            student.setBalance(remainingBalance);
+
+            // Lưu log vào database
+            printingLogRepository.save(log);
+
+            // Lưu lại thông tin Student để cập nhật danh sách printingLogs
+            student.getPrintingLogs().add(log);
+            studentRepository.save(student);
+
+            // Cập nhật thông tin log
+            log.setStartDate(LocalDateTime.now());
+            log.setEndDate(LocalDateTime.now().plusSeconds(requiredPages * 5));
+            log.setStudent(student);
+            log.setPrinter(printer);
+
+            // Lưu log vào database
+            printingLogRepository.save(log);
+
+            // Cập nhật thông tin Printer
+            printer.setStatus(false); // Chuyển trạng thái sang "đang sử dụng"
+            printer.setInkAmount(printer.getInkAmount() - requiredPages / 20);
+            printer.setPageAmount(printer.getPageAmount() - requiredPages);
+
+            printerHelper.schedulePrinterStatusReset(printerID);
+
+            if (printer.getInkAmount() <= 0)
+                printer.setInkAmount(100);
+            if (printer.getPageAmount() <= 0)
+                printer.setPageAmount(10000);
+
+            // Thêm log vào danh sách
+            printer.getPrintingLogs().add(log);
+
+            // Lưu lại thông tin Printer
+            printerRepository.save(printer);
         }
-
-        // Xử lý phần mở rộng file
-        int lastDotIndex = fileName.lastIndexOf('.');
-        if (lastDotIndex == -1 || lastDotIndex == fileName.length() - 1) {
-            throw new RuntimeException("File '" + fileName + "' has no valid extension.");
-        }
-
-        // Lấy phần mở rộng file
-        String fileExtension = fileName.substring(lastDotIndex + 1);
-
-        // Kiểm tra phần mở rộng có hợp lệ không
-        if (!allowedExtensions.contains(fileExtension)) {
-            throw new RuntimeException("File type '" + fileExtension + "' is not allowed for printing.");
-        }
-
-        // Cập nhật balance của Student
-        int remainingPages = student.getBalance() - log.getNumOfPages() * log.getNumOfCopies();
-        student.setBalance(remainingPages);
-
-        // Lưu log vào database
-        printingLogRepository.save(log);
-
-        // Lưu lại thông tin Student để cập nhật danh sách printingLogs
-        student.getPrintingLogs().add(log);
-        studentRepository.save(student);
-
-        // Cập nhật thông tin log
-        log.setStartDate(LocalDateTime.now());
-        log.setEndDate(LocalDateTime.now().plusSeconds(log.getNumOfPages() * log.getNumOfCopies() * 5));
-        log.setStudent(student);
-        log.setPrinter(printer);
-
-        // Lưu log vào database
-        printingLogRepository.save(log);
-
-        // Cập nhật thông tin Printer
-        printer.setStatus(false); // Chuyển trạng thái sang "đang sử dụng"
-        printer.setInkAmount(printer.getInkAmount() - log.getNumOfPages() * log.getNumOfCopies() / 20);
-        printer.setPageAmount(printer.getPageAmount() - log.getNumOfPages() * log.getNumOfCopies());
-       
-        printerHelper.schedulePrinterStatusReset(printerID);
-        
-        if (printer.getInkAmount() <= 0)
-            printer.setInkAmount(100);
-        if (printer.getPageAmount() <= 0)
-            printer.setPageAmount(10000);
-
-        // Thêm log vào danh sách
-        printer.getPrintingLogs().add(log);
-
-        // Lưu lại thông tin Printer
-        printerRepository.save(printer);
     }
-}
 
     // @Override
     // public void addPrintingLog(ArrayList<PrintingLog> printingLog, String printerID, String id) {
