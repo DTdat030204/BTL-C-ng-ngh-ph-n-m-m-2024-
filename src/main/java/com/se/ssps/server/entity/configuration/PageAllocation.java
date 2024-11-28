@@ -18,8 +18,8 @@ public class PageAllocation {
     private Integer semester;
 
     private Integer year;
-
-    private LocalDate allocatedDate; // Không cần @Temporal vì MongoDB hỗ trợ kiểu ngày
+    private LocalDate allocatedDate; // Ngày cấp phát
+ 
 
     private Integer numOfPage;
 
@@ -29,6 +29,15 @@ public class PageAllocation {
         this.semester = semester;
         this.numOfPage = numOfPage;
         this.year = year;
+        this.status = status;
+    }
+    
+    // Constructor đầy đủ các thuộc tính
+    public PageAllocation(Integer semester, Integer year, LocalDate allocatedDate, Integer numOfPage, boolean status) {
+        this.semester = semester;
+        this.year = year;
+        this.allocatedDate = allocatedDate;
+        this.numOfPage = numOfPage;
         this.status = status;
     }
 

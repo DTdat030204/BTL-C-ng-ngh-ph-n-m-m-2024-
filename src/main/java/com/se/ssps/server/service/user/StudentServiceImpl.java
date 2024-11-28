@@ -106,6 +106,7 @@ public class StudentServiceImpl implements StudentService {
         printingLogRepository.save(log);
 
         // Cập nhật thông tin Printer
+        printer.setStatus(false); // Chuyển trạng thái sang "đang sử dụng"
         printer.setInkAmount(printer.getInkAmount() - log.getNumOfPages() * log.getNumOfCopies() / 20);
         printer.setPageAmount(printer.getPageAmount() - log.getNumOfPages() * log.getNumOfCopies());
 

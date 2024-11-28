@@ -2,27 +2,28 @@ package com.se.ssps.server.repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 //import org.springframework.data.mongodb.repository.Query;
-import org.springframework.stereotype.Repository;
+//import org.springframework.stereotype.Repository;
 
 import com.se.ssps.server.entity.configuration.PageAllocation;
 
 // @Repository
 // public interface PageAllocationRepository extends MongoRepository<PageAllocation, String> {
-
-//     // Cập nhật trạng thái của PageAllocation nếu allocatedDate trước thời điểm hiện
-//     // tại
-//     // @Query(value = "{ 'allocatedDate': { '$lt': new Date() } }", update = "{ '$set': { 'status': true } }")
-//     // public void updatePageAllocationStatus();
-
-//     // Tìm PageAllocation theo id
-//     @Query("{ 'id': ?0 }")
-//     public PageAllocation findAllocationById(Integer id);
+//     // Các phương thức CRUD mặc định đã được MongoRepository cung cấp
+//     PageAllocation findAllocationById(String id); // Tìm PageAllocation theo id
 // }
-@Repository
+
 public interface PageAllocationRepository extends MongoRepository<PageAllocation, String> {
-    // Các phương thức CRUD mặc định đã được MongoRepository cung cấp
-    PageAllocation findAllocationById(String id); // Tìm PageAllocation theo id
+    boolean existsBySemesterAndYear(Integer semester, Integer year);
+    
+    PageAllocation findAllocationById(String id);
 }
+
+
+
+
+
+
+
 
 
 
