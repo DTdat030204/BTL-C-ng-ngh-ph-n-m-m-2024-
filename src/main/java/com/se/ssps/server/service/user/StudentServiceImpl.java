@@ -21,6 +21,8 @@ import com.se.ssps.server.repository.PrinterRepository;
 import com.se.ssps.server.repository.PrintingLogRepository;
 import com.se.ssps.server.repository.StudentRepository;
 
+import com.se.ssps.server.healper.PrinterHelper;
+
 @Service
 public class StudentServiceImpl implements StudentService {
     @Autowired
@@ -40,9 +42,14 @@ public class StudentServiceImpl implements StudentService {
 
     @Autowired
     private FileTypeRepository fileTypeRepository;
-
-
-
+    
+    @Autowired
+    private final PrinterHelper printerHelper; // Inject PrinterHelper
+    @Autowired
+    public StudentServiceImpl(PrinterRepository printerRepository, PrinterHelper printerHelper) {
+        this.printerRepository = printerRepository;
+        this.printerHelper = printerHelper;
+    }
 
     public Student findStudentByUsername(String username) {
         return studentRepository.findByUsername(username);
@@ -109,7 +116,9 @@ public class StudentServiceImpl implements StudentService {
         printer.setStatus(false); // Chuyển trạng thái sang "đang sử dụng"
         printer.setInkAmount(printer.getInkAmount() - log.getNumOfPages() * log.getNumOfCopies() / 20);
         printer.setPageAmount(printer.getPageAmount() - log.getNumOfPages() * log.getNumOfCopies());
-
+       
+        printerHelper.schedulePrinterStatusReset(printerID);
+        
         if (printer.getInkAmount() <= 0)
             printer.setInkAmount(100);
         if (printer.getPageAmount() <= 0)
