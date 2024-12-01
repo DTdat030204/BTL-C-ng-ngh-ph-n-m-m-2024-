@@ -30,7 +30,7 @@ public interface AdminService {
     // Thao tác đối với máy in
     public List<Printer> findAllPrinter();
 
-    public Printer addPrinter(String roomName, Printer newPrinter);
+    Printer addPrinter(String roomName, String buildingName, String campusName, Printer newPrinter);
 
     public Printer findPrinterById(String id);
 

@@ -35,6 +35,11 @@ public interface PrintingLogRepository extends MongoRepository<PrintingLog, Stri
     // Đếm số lượng in theo kích thước trang (pageSize) và khoảng thời gian
     @Query("{ 'pageSize': ?0, 'startDate': { $gte: ?1 }, 'endDate': { $lte: ?2 } }")
     public Integer countPageSize(PageSize pageSize, LocalDateTime from, LocalDateTime to);
+
+    @Query("{ 'startDate': { $gte: ?0 }, 'endDate': { $lte: ?1 } }")
+    List<PrintingLog> findAllLogsBetween(LocalDateTime from, LocalDateTime to);
+
+    
 }
 
 

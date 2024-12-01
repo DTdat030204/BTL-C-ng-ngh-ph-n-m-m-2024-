@@ -1,5 +1,7 @@
 package com.se.ssps.server.repository;
 
+import java.util.List;
+
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -24,6 +26,10 @@ public interface RoomRepository extends MongoRepository<Room, String> {
 
     @Query("{'roomName': ?0}")
     Room findByRoomName(String roomName);
+
+
+    @Query("{ 'building.$id': ?0 }") // Tìm Room theo ID của Building
+    List<Room> findByBuildingId(String buildingId);
 }
 
 

@@ -29,6 +29,11 @@ public class Room {
     @DBRef
     private Building building; // Tham chiếu đến tài liệu Building
 
+    
+    //@JsonBackReference // Bỏ qua vòng lặp
+    @DBRef
+    private Campus campus; // Thêm tham chiếu tới Campus
+
     private boolean isDel;
 
     private boolean havePrinter;

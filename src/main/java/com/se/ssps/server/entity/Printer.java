@@ -7,7 +7,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
-
+import com.se.ssps.server.entity.configuration.Building;
+import com.se.ssps.server.entity.configuration.Campus;
 import com.se.ssps.server.entity.configuration.Room;
 
 import lombok.*;
@@ -39,6 +40,12 @@ public class Printer {
 
     @DBRef
     private Room room; // Tham chiếu đến tài liệu `Room`
+
+    @DBRef(lazy = false)
+    private Building building;
+
+    @DBRef(lazy = false)
+    private Campus campus;
 
    
     @DBRef

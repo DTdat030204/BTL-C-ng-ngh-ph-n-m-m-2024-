@@ -34,8 +34,6 @@ import com.se.ssps.server.entity.configuration.Room;
 import com.se.ssps.server.service.user.AdminService;
 import com.se.ssps.server.stat.ChartValue;
 
-
-
 @CrossOrigin
 @RestController
 @RequestMapping("/admin")
@@ -46,31 +44,31 @@ public class AdminController {
 
     // @PostMapping("/login")
     // public ResponseEntity<?> loginAdmin(@RequestBody Admin admin) {
-    //     LoginResponse loginResponse = new LoginResponse();
-    //     try {
-    //         // Tìm Admin dựa trên username
-    //         Admin foundAdmin = adminService.findAdminByUsername(admin.getUsername());
-    //         if (foundAdmin != null) {
-    //             // So sánh password
-    //             if (foundAdmin.getPassword().equals(admin.getPassword())) {
-    //                 loginResponse.setUser(foundAdmin);
-    //                 loginResponse.setCorrectPass(true);
-    //                 return ResponseEntity.ok(loginResponse); // Đăng nhập thành công
-    //             }
-    //             // Mật khẩu sai
-    //             loginResponse.setUser(foundAdmin);
-    //             loginResponse.setCorrectPass(false);
-    //             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-    //                     .body("Sai mật khẩu"); // Trả về thông báo sai mật khẩu
-    //         }
-    //         // Nếu không tìm thấy Admin
-    //         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-    //                 .body("Admin không tồn tại"); // Trả về thông báo không tìm thấy admin
-    //     } catch (Exception e) {
-    //         // Lỗi hệ thống
-    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-    //                 .body("Lỗi hệ thống: " + e.getMessage()); // Trả về thông báo lỗi hệ thống
-    //     }
+    // LoginResponse loginResponse = new LoginResponse();
+    // try {
+    // // Tìm Admin dựa trên username
+    // Admin foundAdmin = adminService.findAdminByUsername(admin.getUsername());
+    // if (foundAdmin != null) {
+    // // So sánh password
+    // if (foundAdmin.getPassword().equals(admin.getPassword())) {
+    // loginResponse.setUser(foundAdmin);
+    // loginResponse.setCorrectPass(true);
+    // return ResponseEntity.ok(loginResponse); // Đăng nhập thành công
+    // }
+    // // Mật khẩu sai
+    // loginResponse.setUser(foundAdmin);
+    // loginResponse.setCorrectPass(false);
+    // return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+    // .body("Sai mật khẩu"); // Trả về thông báo sai mật khẩu
+    // }
+    // // Nếu không tìm thấy Admin
+    // return ResponseEntity.status(HttpStatus.NOT_FOUND)
+    // .body("Admin không tồn tại"); // Trả về thông báo không tìm thấy admin
+    // } catch (Exception e) {
+    // // Lỗi hệ thống
+    // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    // .body("Lỗi hệ thống: " + e.getMessage()); // Trả về thông báo lỗi hệ thống
+    // }
     // }
 
     @PostMapping("/login")
@@ -116,8 +114,9 @@ public class AdminController {
     }
 
     // @PostMapping("/file-size")
-    // public MaxFileSize setMaxFileSize(@RequestParam(name = "size") double maxFileSize) {
-    //     return adminService.setMaxFileSize(maxFileSize);
+    // public MaxFileSize setMaxFileSize(@RequestParam(name = "size") double
+    // maxFileSize) {
+    // return adminService.setMaxFileSize(maxFileSize);
     // }
     @PostMapping("/file-size")
     public ResponseEntity<ApiResponse> setMaxFileSize(@RequestParam(name = "size") double maxFileSize) {
@@ -139,8 +138,9 @@ public class AdminController {
     }
 
     // @PostMapping("/unit-price")
-    // public PageUnitPrice setPageUnitPrice(@RequestParam(name = "price") Integer pageUnitPrice) {
-    //     return adminService.setPagePrice(pageUnitPrice);
+    // public PageUnitPrice setPageUnitPrice(@RequestParam(name = "price") Integer
+    // pageUnitPrice) {
+    // return adminService.setPagePrice(pageUnitPrice);
     // }
     @PostMapping("/unit-price")
     public ResponseEntity<ApiResponse> setPageUnitPrice(@RequestParam(name = "price") Integer pageUnitPrice) {
@@ -161,7 +161,7 @@ public class AdminController {
 
     // @PostMapping("/add-file-type")
     // public FileType addFileType(@RequestBody FileType newFileType) {
-    //     return adminService.addType(newFileType);
+    // return adminService.addType(newFileType);
     // }
     @PostMapping("/add-file-type")
     public ResponseEntity<ApiResponse> addFileType(@RequestBody FileType newFileType) {
@@ -180,9 +180,6 @@ public class AdminController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
-
-
-
 
     @DeleteMapping("/delete-file-type")
     public void deleteFileType(@RequestParam Integer id) {
@@ -204,17 +201,39 @@ public class AdminController {
 
     // @GetMapping("/printer-stat")
     // public List<PrinterDto> listOfPrinterWithStat() {
-    //     return adminService.findAllPrinterStat();
+    // return adminService.findAllPrinterStat();
     // }
 
-    // Thêm một máy in mới
-    @PostMapping("/addprinter")
-    public Printer addPrinter(@RequestParam(name = "room-name") String roomName, @RequestBody Printer newPrinter) {
-        return adminService.addPrinter(roomName, newPrinter);
-    }
+
     // @PostMapping("/addprinter")
-    // public Printer addPrinter(@RequestParam(name = "room-id") String room_id, @RequestBody Printer newPrinter) {
-    //     return adminService.addPrinter(room_id, newPrinter);
+    // public Printer addPrinter(@RequestParam(name = "room-name") String roomName,
+    //         @RequestParam(name = "building-name") String buildingName,
+    //         @RequestParam(name = "campus-name") String campusName,
+    //         @RequestBody Printer newPrinter) {
+    //     return adminService.addPrinter(roomName, buildingName, campusName, newPrinter);
+    // }
+    @PostMapping("/addprinter")
+    public ApiResponse addPrinter(@RequestParam(name = "room-name") String roomName,
+            @RequestParam(name = "building-name") String buildingName,
+            @RequestParam(name = "campus-name") String campusName,
+            @RequestBody Printer newPrinter) {
+        try {
+            Printer savedPrinter = adminService.addPrinter(roomName, buildingName, campusName, newPrinter);
+            return new ApiResponse("success", "Máy in đã được thêm thành công.", savedPrinter);
+        } catch (Exception e) {
+            return new ApiResponse("error", e.getMessage(), null);
+        }
+    }
+
+    // // Thêm một máy in mới
+    // @PostMapping("/addprinter")
+    // public Printer addPrinter(@RequestParam(name = "room-name") String roomName, @RequestBody Printer newPrinter) {
+    //     return adminService.addPrinter(roomName, newPrinter);
+    // }
+    // @PostMapping("/addprinter")
+    // public Printer addPrinter(@RequestParam(name = "room-id") String room_id,
+    // @RequestBody Printer newPrinter) {
+    // return adminService.addPrinter(room_id, newPrinter);
     // }
 
     // Xóa một printer ra khỏi hệ thống***
@@ -269,8 +288,9 @@ public class AdminController {
     }
 
     // @PostMapping("/addbuilding")
-    // public Building addBuilding(@RequestParam(name = "campus-id") Integer campus_id, @RequestBody Building building) {
-    //     return adminService.addBuilding(campus_id, building);
+    // public Building addBuilding(@RequestParam(name = "campus-id") Integer
+    // campus_id, @RequestBody Building building) {
+    // return adminService.addBuilding(campus_id, building);
     // }
     @PostMapping("/addbuilding")
     public Building addBuilding(@RequestParam(name = "campus-name") String campusName, @RequestBody Building building) {
@@ -288,10 +308,11 @@ public class AdminController {
         return adminService.findAllRoom();
     }
 
-    //25/11/2024
+    // 25/11/2024
     // @PostMapping("/addroom")
-    // public Room addRoom(@RequestParam(name = "building-id") Integer building_id, @RequestBody Room room) {
-    //     return adminService.addRoom(building_id, room);
+    // public Room addRoom(@RequestParam(name = "building-id") Integer building_id,
+    // @RequestBody Room room) {
+    // return adminService.addRoom(building_id, room);
     // }
     @PostMapping("/addroom")
     public Room addRoom(@RequestParam(name = "building-name") String buildingName, @RequestBody Room room) {
@@ -327,8 +348,9 @@ public class AdminController {
     }
 
     // @PostMapping("/add-page-allocation")
-    // public PageAllocation addPageAllocation(@RequestBody PageAllocation newAllocation) {
-    //     return adminService.addPageAllocation(newAllocation);
+    // public PageAllocation addPageAllocation(@RequestBody PageAllocation
+    // newAllocation) {
+    // return adminService.addPageAllocation(newAllocation);
     // }
 
     @PostMapping("/add-page-allocation")
@@ -336,25 +358,20 @@ public class AdminController {
         try {
             PageAllocation allocation = adminService.addPageAllocation(newAllocation);
             ApiResponse response = new ApiResponse(
-                    "success", 
+                    "success",
                     "Phân bổ trang thành công",
-                    allocation 
-            );
-            return ResponseEntity.ok(response); 
+                    allocation);
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             ApiResponse errorResponse = new ApiResponse(
-                    "error", 
-                    "Lỗi trong quá trình phân bổ trang: " + e.getMessage(), 
-                    null 
-            );
+                    "error",
+                    "Lỗi trong quá trình phân bổ trang: " + e.getMessage(),
+                    null);
             return ResponseEntity
                     .badRequest()
-                    .body(errorResponse); 
+                    .body(errorResponse);
         }
     }
-
-
-
 
     @DeleteMapping("/delete-page-allocation")
     public boolean deleteAllocation(@RequestParam Integer id) {

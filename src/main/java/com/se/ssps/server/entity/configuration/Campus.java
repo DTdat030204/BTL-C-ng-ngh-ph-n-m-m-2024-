@@ -30,6 +30,9 @@ public class Campus {
     
     @JsonManagedReference //25/11/2024
     
+
+    
+
     @DBRef // Tham chiếu tới danh sách Building
     private List<Building> buildings;
 

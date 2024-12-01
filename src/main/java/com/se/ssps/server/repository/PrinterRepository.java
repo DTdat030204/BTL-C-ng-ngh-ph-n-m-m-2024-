@@ -1,10 +1,14 @@
 package com.se.ssps.server.repository;
 
+import java.util.List;
+
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.se.ssps.server.entity.Printer;
+
+//import com.se.ssps.server.entity.configuration.Building;
 import com.se.ssps.server.entity.configuration.Room;
 
 @Repository
@@ -49,6 +53,14 @@ public interface PrinterRepository extends MongoRepository<Printer, String> {
     // Cập nhật trạng thái máy in
     @Query("{ 'id' : ?1 }, { '$set': { 'status' : ?0 } }")
     public void updateStatus(Boolean newStatus, String id); // Sửa Integer thành String
+
+    @Query("{ 'building' : ObjectId(?0) }")
+    List<Printer> findByBuildingId(String buildingId);
+
+    @Query("{ 'campus' : ObjectId(?0) }")
+    List<Printer> findByCampusId(String campusId);
+   
+
 }
 
 // @Repository

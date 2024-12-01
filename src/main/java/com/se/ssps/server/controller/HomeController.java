@@ -108,21 +108,22 @@ public class HomeController {
 
     // @PostMapping("/login")
     // public ResponseEntity<String> loginStudent(@RequestBody Student student) {
-    //     try {
-    //         Student foundStudent = studentService.findStudentByUsername(student.getUsername());
-    //         if (foundStudent != null) {
-    //             if (foundStudent.getPassword().equals(student.getPassword())) {
-    //                 return ResponseEntity.ok("Đăng nhập thành công");
-    //             }
-    //             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-    //                     .body("Sai mật khẩu");
-    //         }
-    //         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-    //                 .body("Student không tồn tại");
-    //     } catch (Exception e) {
-    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-    //                 .body("Lỗi hệ thống: " + e.getMessage());
-    //     }
+    // try {
+    // Student foundStudent =
+    // studentService.findStudentByUsername(student.getUsername());
+    // if (foundStudent != null) {
+    // if (foundStudent.getPassword().equals(student.getPassword())) {
+    // return ResponseEntity.ok("Đăng nhập thành công");
+    // }
+    // return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+    // .body("Sai mật khẩu");
+    // }
+    // return ResponseEntity.status(HttpStatus.NOT_FOUND)
+    // .body("Student không tồn tại");
+    // } catch (Exception e) {
+    // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    // .body("Lỗi hệ thống: " + e.getMessage());
+    // }
     // }
 
     @PostMapping("/login")
@@ -131,7 +132,7 @@ public class HomeController {
             Student foundStudent = studentService.findStudentByUsername(student.getUsername());
             if (foundStudent != null) {
                 if (foundStudent.getPassword().equals(student.getPassword())) {
-                    return ResponseEntity.ok(new ApiResponse("success", "Đăng nhập thành công"));
+                    return ResponseEntity.ok(new ApiResponse("success", "Đăng nhập thành công", foundStudent));
                 }
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new ApiResponse("error", "Sai mật khẩu"));
@@ -215,7 +216,7 @@ public class HomeController {
 
             studentService.registerStudent(student);
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new ApiResponse("success", "Đăng ký thành công!"));
+                    .body(new ApiResponse("success", "Đăng ký thành công!", student));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse("error", "Lỗi hệ thống: " + e.getMessage()));

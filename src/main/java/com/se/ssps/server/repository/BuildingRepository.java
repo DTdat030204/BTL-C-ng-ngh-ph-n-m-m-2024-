@@ -17,6 +17,7 @@ public interface BuildingRepository extends MongoRepository<Building, String> {
     // thường sử dụng template để cập nhật phức tạp hơn.
     @Query("{ 'buildingName': ?0 }")
     public Building findByBuildingName(String buildingName);
+    
 }
 
 
