@@ -41,16 +41,14 @@ public class Admin {
     private String lastName;   // Tên admin
     private String username;   // Tên đăng nhập
     private String password;   // Mật khẩu
-    private String adminLevel; // Cấp bậc quản trị (ví dụ: "super", "regular")
-    private Boolean isSuperAdmin; // Đánh dấu nếu admin này là Super Admin
+   
 
     public Admin(String firstName, String lastName, String username, String password, String adminLevel, Boolean isSuperAdmin) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
         this.password = password;
-        this.adminLevel = adminLevel;
-        this.isSuperAdmin = isSuperAdmin;
+     
     }
 }
 

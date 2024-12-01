@@ -449,10 +449,20 @@ public void updatePrice(String id, Integer newPrice) {
                         printer.getStatus(),
                         printer.getId(),
                         printer.getRoom() != null ? printer.getRoom().getRoomName() : "Unknown" // Kiểm tra null để tránh lỗi
-                    
+
                 ))
                 .collect(Collectors.toList());
     }
 
+    
+    @Override
+    public boolean isUsernameTaken(String username) {
+        return studentRepository.existsByUsername(username);
+    }
+
+    @Override
+    public boolean isStudentNumberTaken(Long studentNumber) {
+        return studentRepository.existsByStudentNumber(studentNumber);
+    }
 
 }

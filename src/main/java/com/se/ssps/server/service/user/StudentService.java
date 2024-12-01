@@ -34,5 +34,9 @@ public interface StudentService {
     public Student findStudentByUsername(String username);
 
     public List<PrinterStudentDto> findAllPrinterForStudents();
+
+    public boolean isUsernameTaken(String username);
+
+    public boolean isStudentNumberTaken(Long studentNumber);
     
 }

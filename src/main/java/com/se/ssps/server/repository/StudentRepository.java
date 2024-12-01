@@ -13,6 +13,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface StudentRepository extends MongoRepository<Student, String> {
     Student findByUsername(String username);
+    
+ 
+    boolean existsByUsername(String username);
+
+ 
+    boolean existsByStudentNumber(Long studentNumber);
 }
 // public interface StudentRepository extends MongoRepository<Student, Integer> {
 //     // Truy vấn sinh viên theo ID, MongoDB sẽ tự động tìm kiếm theo trường "_id"
