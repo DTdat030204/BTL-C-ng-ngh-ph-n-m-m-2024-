@@ -1,4 +1,4 @@
-package com.se.ssps.server.healper;
+package com.se.ssps.server.helper;
 
 import com.se.ssps.server.repository.PrinterRepository;
 import com.se.ssps.server.entity.Printer;

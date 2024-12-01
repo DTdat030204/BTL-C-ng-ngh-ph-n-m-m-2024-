@@ -1,4 +1,4 @@
-package com.se.ssps.server.healper;
+package com.se.ssps.server.helper;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

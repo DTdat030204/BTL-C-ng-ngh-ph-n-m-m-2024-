@@ -1,4 +1,4 @@
-package com.se.ssps.server.healper;
+package com.se.ssps.server.helper;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -21,6 +21,7 @@ import com.se.ssps.server.entity.PaymentLog;
 // import com.se.ssps.server.entity.File;
 import com.se.ssps.server.entity.PrintingLog;
 import com.se.ssps.server.entity.user.Student;
+import com.se.ssps.server.helper.ApiResponse;
 import com.se.ssps.server.service.user.StudentService;
 
 @RequestMapping("/student/{id}")
@@ -36,18 +37,42 @@ public class StudentController {
     //     studentService.addPrintingLog(printingLog, printerID, id);
 
     // }
+    // @PostMapping("/print")
+    // public ResponseEntity<?> printDoc(
+    //         @RequestBody ArrayList<PrintingLog> printingLog,
+    //         @RequestParam(name = "printer-id") String printerID,
+    //         @PathVariable String id) {
+    //     try {
+    //         studentService.addPrintingLog(printingLog, printerID, id);
+    //         return ResponseEntity.ok().body("Documents printed successfully.");
+    //     } catch (RuntimeException e) {
+    //         return ResponseEntity
+    //                 .badRequest()
+    //                 .body(e.getMessage());
+    //     }
+    // }
+
     @PostMapping("/print")
-    public ResponseEntity<?> printDoc(
+    public ResponseEntity<ApiResponse> printDoc(
             @RequestBody ArrayList<PrintingLog> printingLog,
             @RequestParam(name = "printer-id") String printerID,
             @PathVariable String id) {
         try {
+
             studentService.addPrintingLog(printingLog, printerID, id);
-            return ResponseEntity.ok().body("Documents printed successfully.");
+            ApiResponse response = new ApiResponse(
+                    "success",
+                    "In thành công.",
+                    printingLog);
+
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
+            ApiResponse errorResponse = new ApiResponse(
+                    "error",
+                    "Lỗi: " + e.getMessage());
             return ResponseEntity
                     .badRequest()
-                    .body(e.getMessage());
+                    .body(errorResponse);
         }
     }
 
@@ -60,12 +85,36 @@ public class StudentController {
     // public void buyPages(@RequestBody PaymentLog payment, @PathVariable String id) {
     //     studentService.buyPage(payment, id);
     // }
-    @PostMapping("/buy-pages")
-    public ResponseEntity<String> buyPages(@RequestBody PaymentLog payment, @PathVariable String id) {
-        studentService.buyPage(payment, id); // Thực hiện logic mua trang
-        return ResponseEntity.ok("Mua thành công"); // Luôn trả về thông báo thành công
-    }
+    // @PostMapping("/buy-pages")
+    // public ResponseEntity<String> buyPages(@RequestBody PaymentLog payment, @PathVariable String id) {
+    //     studentService.buyPage(payment, id); // Thực hiện logic mua trang
+    //     return ResponseEntity.ok("Mua thành công"); // Luôn trả về thông báo thành công
+    // }
 
+    @PostMapping("/buy-pages")
+    public ResponseEntity<ApiResponse> buyPages(@RequestBody PaymentLog payment, @PathVariable String id) {
+        try {
+            studentService.buyPage(payment, id);
+            ApiResponse response = new ApiResponse(
+                    "success", 
+                    "Mua trang thành công", 
+                    payment 
+            );
+            return ResponseEntity.ok(response); 
+        } catch (RuntimeException e) {
+            ApiResponse errorResponse = new ApiResponse(
+                    "error", 
+                    "Lỗi trong quá trình mua trang: " + e.getMessage(), 
+                    null
+            );
+            return ResponseEntity
+                    .badRequest()
+                    .body(errorResponse); 
+        }
+    }
+    
+    
+    
     @GetMapping("/payment-logs")
     public List<PaymentLog> listOfPaymentLogs(@PathVariable String id) {
         return studentService.listOfPaymentLogs(id);

@@ -1,6 +1,7 @@
 package com.se.ssps.server.controller;
 
 import java.time.YearMonth;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 //import org.springframework.web.server.ResponseStatusException;
 
 import com.se.ssps.server.entity.user.Admin;
+import com.se.ssps.server.helper.ApiResponse;
 //import com.se.ssps.server.dto.PrinterDto;
 //import com.se.ssps.server.dto.AdminRegistrationRequest;
 import com.se.ssps.server.entity.Config;
@@ -27,7 +29,7 @@ import com.se.ssps.server.entity.configuration.MaxFileSize;
 import com.se.ssps.server.entity.configuration.PageAllocation;
 import com.se.ssps.server.entity.configuration.PageUnitPrice;
 import com.se.ssps.server.entity.configuration.Room;
-import com.se.ssps.server.entity.response.LoginResponse;
+//import com.se.ssps.server.entity.response.LoginResponse;
 //import com.se.ssps.server.entity.response.LoginResponse;
 import com.se.ssps.server.service.user.AdminService;
 import com.se.ssps.server.stat.ChartValue;
@@ -38,42 +40,63 @@ import com.se.ssps.server.stat.ChartValue;
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
-    
+
     @Autowired
     AdminService adminService;
 
-        @PostMapping("/login")
-        public ResponseEntity<?> loginAdmin(@RequestBody Admin admin) {
-            LoginResponse loginResponse = new LoginResponse();
-            try {
-                // Tìm Admin dựa trên username
-                Admin foundAdmin = adminService.findAdminByUsername(admin.getUsername());
-                if (foundAdmin != null) {
-                    // So sánh password
-                    if (foundAdmin.getPassword().equals(admin.getPassword())) {
-                        loginResponse.setUser(foundAdmin);
-                        loginResponse.setCorrectPass(true);
-                        return ResponseEntity.ok(loginResponse); // Đăng nhập thành công
-                    }
-                    // Mật khẩu sai
-                    loginResponse.setUser(foundAdmin);
-                    loginResponse.setCorrectPass(false);
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Sai mật khẩu"); // Trả về thông báo sai mật khẩu
-                }
-                // Nếu không tìm thấy Admin
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Admin không tồn tại"); // Trả về thông báo không tìm thấy admin
-            } catch (Exception e) {
-                // Lỗi hệ thống
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body("Lỗi hệ thống: " + e.getMessage()); // Trả về thông báo lỗi hệ thống
-            }
-        }
-    
-    
+    // @PostMapping("/login")
+    // public ResponseEntity<?> loginAdmin(@RequestBody Admin admin) {
+    //     LoginResponse loginResponse = new LoginResponse();
+    //     try {
+    //         // Tìm Admin dựa trên username
+    //         Admin foundAdmin = adminService.findAdminByUsername(admin.getUsername());
+    //         if (foundAdmin != null) {
+    //             // So sánh password
+    //             if (foundAdmin.getPassword().equals(admin.getPassword())) {
+    //                 loginResponse.setUser(foundAdmin);
+    //                 loginResponse.setCorrectPass(true);
+    //                 return ResponseEntity.ok(loginResponse); // Đăng nhập thành công
+    //             }
+    //             // Mật khẩu sai
+    //             loginResponse.setUser(foundAdmin);
+    //             loginResponse.setCorrectPass(false);
+    //             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+    //                     .body("Sai mật khẩu"); // Trả về thông báo sai mật khẩu
+    //         }
+    //         // Nếu không tìm thấy Admin
+    //         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+    //                 .body("Admin không tồn tại"); // Trả về thông báo không tìm thấy admin
+    //     } catch (Exception e) {
+    //         // Lỗi hệ thống
+    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    //                 .body("Lỗi hệ thống: " + e.getMessage()); // Trả về thông báo lỗi hệ thống
+    //     }
+    // }
 
-   
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, String>> loginAdmin(@RequestBody Admin admin) {
+        Map<String, String> response = new HashMap<>();
+        try {
+            Admin foundAdmin = adminService.findAdminByUsername(admin.getUsername());
+            if (foundAdmin != null) {
+                if (foundAdmin.getPassword().equals(admin.getPassword())) {
+                    response.put("status", "success");
+                    response.put("message", "Đăng nhập thành công");
+                    return ResponseEntity.ok(response);
+                }
+                response.put("status", "error");
+                response.put("message", "Sai mật khẩu");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+            response.put("status", "error");
+            response.put("message", "Admin không tồn tại");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", "Lỗi hệ thống: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
 
     @GetMapping("/config")
     public Config configStat() {
@@ -92,20 +115,74 @@ public class AdminController {
         }
     }
 
+    // @PostMapping("/file-size")
+    // public MaxFileSize setMaxFileSize(@RequestParam(name = "size") double maxFileSize) {
+    //     return adminService.setMaxFileSize(maxFileSize);
+    // }
     @PostMapping("/file-size")
-    public MaxFileSize setMaxFileSize(@RequestParam(name = "size") double maxFileSize) {
-        return adminService.setMaxFileSize(maxFileSize);
+    public ResponseEntity<ApiResponse> setMaxFileSize(@RequestParam(name = "size") double maxFileSize) {
+        try {
+            MaxFileSize updatedMaxFileSize = adminService.setMaxFileSize(maxFileSize);
+
+            ApiResponse response = new ApiResponse(
+                    "success",
+                    "Kích thước file tối đa đã được cập nhật thành công",
+                    updatedMaxFileSize);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            ApiResponse errorResponse = new ApiResponse(
+                    "error",
+                    "Không thể cập nhật kích thước file tối đa: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
 
+    // @PostMapping("/unit-price")
+    // public PageUnitPrice setPageUnitPrice(@RequestParam(name = "price") Integer pageUnitPrice) {
+    //     return adminService.setPagePrice(pageUnitPrice);
+    // }
     @PostMapping("/unit-price")
-    public PageUnitPrice setPageUnitPrice(@RequestParam(name = "price") Integer pageUnitPrice) {
-        return adminService.setPagePrice(pageUnitPrice);
+    public ResponseEntity<ApiResponse> setPageUnitPrice(@RequestParam(name = "price") Integer pageUnitPrice) {
+        try {
+            PageUnitPrice updatedPrice = adminService.setPagePrice(pageUnitPrice);
+            ApiResponse response = new ApiResponse(
+                    "success",
+                    "Giá đơn vị trang đã được cập nhật thành công",
+                    updatedPrice);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            ApiResponse errorResponse = new ApiResponse(
+                    "error",
+                    "Không thể cập nhật giá đơn vị trang: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
 
+    // @PostMapping("/add-file-type")
+    // public FileType addFileType(@RequestBody FileType newFileType) {
+    //     return adminService.addType(newFileType);
+    // }
     @PostMapping("/add-file-type")
-    public FileType addFileType(@RequestBody FileType newFileType) {
-        return adminService.addType(newFileType);
+    public ResponseEntity<ApiResponse> addFileType(@RequestBody FileType newFileType) {
+        try {
+            FileType addedFileType = adminService.addType(newFileType);
+            ApiResponse response = new ApiResponse(
+                    "success",
+                    "Loại file mới đã được thêm thành công",
+                    addedFileType // Dữ liệu bổ sung
+            );
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            ApiResponse errorResponse = new ApiResponse(
+                    "error",
+                    "Không thể thêm loại file mới: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
+
+
+
 
     @DeleteMapping("/delete-file-type")
     public void deleteFileType(@RequestParam Integer id) {
@@ -228,7 +305,6 @@ public class AdminController {
 
     // =====================================================================================
 
-
     // =====================================================================================
     // Hiện thị thông tin danh sách lịch sử in
     @GetMapping("/printing-logs")
@@ -241,7 +317,7 @@ public class AdminController {
     public List<PaymentLog> listOfPaymentLogs() {
         return adminService.findAllPaymentLog();
     }
-    
+
     // =====================================================================================
     // =====================================================================================
     // Hiện thị thao tác đối với cấp phát trang in

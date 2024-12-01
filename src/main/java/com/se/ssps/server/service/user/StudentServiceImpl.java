@@ -17,6 +17,7 @@ import com.se.ssps.server.entity.configuration.FileType;
 import com.se.ssps.server.entity.configuration.MaxFileSize;
 import com.se.ssps.server.entity.configuration.PageUnitPrice;
 import com.se.ssps.server.entity.user.Student;
+import com.se.ssps.server.helper.PrinterHelper;
 import com.se.ssps.server.repository.FileTypeRepository;
 import com.se.ssps.server.repository.PageUnitRepo;
 import com.se.ssps.server.repository.PaymentLogRepository;
@@ -24,10 +25,6 @@ import com.se.ssps.server.repository.PrinterRepository;
 import com.se.ssps.server.repository.PrintingLogRepository;
 import com.se.ssps.server.repository.StudentRepository;
 import com.se.ssps.server.repository.MaxSizeRepository;
-
-//import com.se.ssps.server.dto.PrinterStudentDto;
-
-import com.se.ssps.server.healper.PrinterHelper;
 
 @Service
 public class StudentServiceImpl implements StudentService {
