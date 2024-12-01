@@ -148,11 +148,11 @@ public class StudentServiceImpl implements StudentService {
         for (PrintingLog log : printingLog) {
             // Tìm Student
             Student student = studentRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Student not found"));
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy học sinh"));
 
             // Tìm Printer
             Printer printer = printerRepository.findById(printerID)
-                    .orElseThrow(() -> new RuntimeException("Printer not found"));
+                    .orElseThrow(() -> new RuntimeException("không tìm thấy máy in"));
 
             // Lấy danh sách các file type hợp lệ
             List<FileType> allowedFileTypes = fileTypeRepository.findAll();
@@ -163,13 +163,13 @@ public class StudentServiceImpl implements StudentService {
             // Kiểm tra tên file
             String fileName = log.getFileName();
             if (fileName == null || fileName.isEmpty()) {
-                throw new RuntimeException("File name cannot be empty.");
+                throw new RuntimeException("File name không được để trống.");
             }
 
             // Xử lý phần mở rộng file
             int lastDotIndex = fileName.lastIndexOf('.');
             if (lastDotIndex == -1 || lastDotIndex == fileName.length() - 1) {
-                throw new RuntimeException("File '" + fileName + "' has no valid extension.");
+                throw new RuntimeException("File ' " + fileName + "' sai định dạng.");
             }
 
             // Lấy phần mở rộng file
@@ -177,7 +177,7 @@ public class StudentServiceImpl implements StudentService {
 
             // Kiểm tra phần mở rộng có hợp lệ không
             if (!allowedExtensions.contains(fileExtension)) {
-                throw new RuntimeException("File type '" + fileExtension + "' is not allowed for printing.");
+                throw new RuntimeException("File type '" + fileExtension + "' không được cho phép in.");
             }
 
             // **Kiểm tra kích thước file**
