@@ -29,7 +29,7 @@ import com.se.ssps.server.service.user.StudentService;
 public class StudentController {
     @Autowired
     StudentService studentService;
-    
+
     // public void printDoc(@RequestBody ArrayList<PrintingLog> printingLog,
     //         @RequestParam(name = "printer-id") String printerID,
     //         @PathVariable String id) {
@@ -42,28 +42,28 @@ public class StudentController {
             @RequestParam(name = "printer-id") String printerID,
             @PathVariable String id) {
         try {
-            // Gọi service để xử lý in
             studentService.addPrintingLog(printingLog, printerID, id);
-
-            // Nếu thành công, trả về thông báo thành công
             return ResponseEntity.ok().body("Documents printed successfully.");
         } catch (RuntimeException e) {
-            // Nếu lỗi, trả về phản hồi với thông báo lỗi
             return ResponseEntity
                     .badRequest()
                     .body(e.getMessage());
         }
     }
 
-
     @GetMapping("/printing-logs")
     public List<PrintingLog> listOfPrintingLogs(@PathVariable String id) {
         return studentService.listOfPrintingLogs(id);
     }
 
+    // @PostMapping("/buy-pages")
+    // public void buyPages(@RequestBody PaymentLog payment, @PathVariable String id) {
+    //     studentService.buyPage(payment, id);
+    // }
     @PostMapping("/buy-pages")
-    public void buyPages(@RequestBody PaymentLog payment, @PathVariable String id) {
-        studentService.buyPage(payment, id);
+    public ResponseEntity<String> buyPages(@RequestBody PaymentLog payment, @PathVariable String id) {
+        studentService.buyPage(payment, id); // Thực hiện logic mua trang
+        return ResponseEntity.ok("Mua thành công"); // Luôn trả về thông báo thành công
     }
 
     @GetMapping("/payment-logs")
