@@ -326,10 +326,35 @@ public class AdminController {
         return adminService.findAllPageAllocations();
     }
 
+    // @PostMapping("/add-page-allocation")
+    // public PageAllocation addPageAllocation(@RequestBody PageAllocation newAllocation) {
+    //     return adminService.addPageAllocation(newAllocation);
+    // }
+
     @PostMapping("/add-page-allocation")
-    public PageAllocation addPageAllocation(@RequestBody PageAllocation newAllocation) {
-        return adminService.addPageAllocation(newAllocation);
+    public ResponseEntity<ApiResponse> addPageAllocation(@RequestBody PageAllocation newAllocation) {
+        try {
+            PageAllocation allocation = adminService.addPageAllocation(newAllocation);
+            ApiResponse response = new ApiResponse(
+                    "success", 
+                    "Phân bổ trang thành công",
+                    allocation 
+            );
+            return ResponseEntity.ok(response); 
+        } catch (RuntimeException e) {
+            ApiResponse errorResponse = new ApiResponse(
+                    "error", 
+                    "Lỗi trong quá trình phân bổ trang: " + e.getMessage(), 
+                    null 
+            );
+            return ResponseEntity
+                    .badRequest()
+                    .body(errorResponse); 
+        }
     }
+
+
+
 
     @DeleteMapping("/delete-page-allocation")
     public boolean deleteAllocation(@RequestParam Integer id) {

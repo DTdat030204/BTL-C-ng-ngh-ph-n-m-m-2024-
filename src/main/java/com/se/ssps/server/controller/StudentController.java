@@ -32,24 +32,24 @@ public class StudentController {
     StudentService studentService;
 
     // public void printDoc(@RequestBody ArrayList<PrintingLog> printingLog,
-    //         @RequestParam(name = "printer-id") String printerID,
-    //         @PathVariable String id) {
-    //     studentService.addPrintingLog(printingLog, printerID, id);
+    // @RequestParam(name = "printer-id") String printerID,
+    // @PathVariable String id) {
+    // studentService.addPrintingLog(printingLog, printerID, id);
 
     // }
     // @PostMapping("/print")
     // public ResponseEntity<?> printDoc(
-    //         @RequestBody ArrayList<PrintingLog> printingLog,
-    //         @RequestParam(name = "printer-id") String printerID,
-    //         @PathVariable String id) {
-    //     try {
-    //         studentService.addPrintingLog(printingLog, printerID, id);
-    //         return ResponseEntity.ok().body("Documents printed successfully.");
-    //     } catch (RuntimeException e) {
-    //         return ResponseEntity
-    //                 .badRequest()
-    //                 .body(e.getMessage());
-    //     }
+    // @RequestBody ArrayList<PrintingLog> printingLog,
+    // @RequestParam(name = "printer-id") String printerID,
+    // @PathVariable String id) {
+    // try {
+    // studentService.addPrintingLog(printingLog, printerID, id);
+    // return ResponseEntity.ok().body("Documents printed successfully.");
+    // } catch (RuntimeException e) {
+    // return ResponseEntity
+    // .badRequest()
+    // .body(e.getMessage());
+    // }
     // }
 
     @PostMapping("/print")
@@ -82,13 +82,16 @@ public class StudentController {
     }
 
     // @PostMapping("/buy-pages")
-    // public void buyPages(@RequestBody PaymentLog payment, @PathVariable String id) {
-    //     studentService.buyPage(payment, id);
+    // public void buyPages(@RequestBody PaymentLog payment, @PathVariable String
+    // id) {
+    // studentService.buyPage(payment, id);
     // }
     // @PostMapping("/buy-pages")
-    // public ResponseEntity<String> buyPages(@RequestBody PaymentLog payment, @PathVariable String id) {
-    //     studentService.buyPage(payment, id); // Thực hiện logic mua trang
-    //     return ResponseEntity.ok("Mua thành công"); // Luôn trả về thông báo thành công
+    // public ResponseEntity<String> buyPages(@RequestBody PaymentLog payment,
+    // @PathVariable String id) {
+    // studentService.buyPage(payment, id); // Thực hiện logic mua trang
+    // return ResponseEntity.ok("Mua thành công"); // Luôn trả về thông báo thành
+    // công
     // }
 
     @PostMapping("/buy-pages")
@@ -96,25 +99,21 @@ public class StudentController {
         try {
             studentService.buyPage(payment, id);
             ApiResponse response = new ApiResponse(
-                    "success", 
-                    "Mua trang thành công", 
-                    payment 
-            );
-            return ResponseEntity.ok(response); 
+                    "success",
+                    "Mua trang thành công",
+                    payment);
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             ApiResponse errorResponse = new ApiResponse(
-                    "error", 
-                    "Lỗi trong quá trình mua trang: " + e.getMessage(), 
-                    null
-            );
+                    "error",
+                    "Lỗi trong quá trình mua trang: " + e.getMessage(),
+                    null);
             return ResponseEntity
                     .badRequest()
-                    .body(errorResponse); 
+                    .body(errorResponse);
         }
     }
-    
-    
-    
+
     @GetMapping("/payment-logs")
     public List<PaymentLog> listOfPaymentLogs(@PathVariable String id) {
         return studentService.listOfPaymentLogs(id);
