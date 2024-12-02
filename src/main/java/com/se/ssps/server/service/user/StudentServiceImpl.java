@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.se.ssps.server.dto.PrinterStudentDto;
+import com.se.ssps.server.entity.PageSize;
 // import com.se.ssps.server.entity.File;
 import com.se.ssps.server.entity.PaymentLog;
 import com.se.ssps.server.entity.Printer;
@@ -48,9 +49,10 @@ public class StudentServiceImpl implements StudentService {
 
     @Autowired
     private MaxSizeRepository maxSizeRepository;
-    
+
     @Autowired
     private final PrinterHelper printerHelper; // Inject PrinterHelper
+
     @Autowired
     public StudentServiceImpl(PrinterRepository printerRepository, PrinterHelper printerHelper) {
         this.printerRepository = printerRepository;
@@ -186,13 +188,33 @@ public class StudentServiceImpl implements StudentService {
                     .orElseThrow(() -> new RuntimeException("Max file size configuration not found."));
 
             if (fileSize > maxFileSize.getValue()) {
-                throw new RuntimeException("File size exceeds the maximum allowed limit (" + maxFileSize.getValue() + " MB).");
+                throw new RuntimeException(
+                        "File size exceeds the maximum allowed limit (" + maxFileSize.getValue() + " MB).");
             }
 
-            // Tính toán số trang và kiểm tra balance
-            int requiredPages = log.getNumOfPages() * log.getNumOfCopies();
+            // Kiểm tra PageSize
+            PageSize pageSize = log.getPageSize();
+            if (pageSize == null) {
+                throw new RuntimeException("PageSize không được để trống.");
+            }
+
+            // Xác định hệ số nhân dựa vào PageSize
+            double scale;
+            switch (pageSize) {
+                case A1 -> scale = 8.0;
+                case A2 -> scale = 4.0;
+                case A3 -> scale = 2.0;
+                case A4 -> scale = 1.0;
+                default -> throw new RuntimeException("Kích thước giấy không hợp lệ.");
+            }
+            // Tính số trang tương đương A4
+            int equivalentPages = (int) (log.getNumOfPages() * scale);
+
+            // Tính số trang cần thiết
+            int requiredPages = equivalentPages * log.getNumOfCopies();
+            //int requiredPages = log.getNumOfPages() * log.getNumOfCopies();
             if (student.getBalance() < requiredPages) {
-                throw new RuntimeException("Insufficient balance. Please purchase more pages.");
+                throw new RuntimeException("Số trang trong tài khoản không đủ. Hãy mua thêm giấy.");
             }
 
             // Cập nhật balance của Student
@@ -211,6 +233,7 @@ public class StudentServiceImpl implements StudentService {
             log.setEndDate(LocalDateTime.now().plusSeconds(requiredPages * 5));
             log.setStudent(student);
             log.setPrinter(printer);
+            log.setNumOfPages(equivalentPages); // Cập nhật số trang tương đương A4
 
             // Lưu log vào database
             printingLogRepository.save(log);
@@ -234,8 +257,86 @@ public class StudentServiceImpl implements StudentService {
             printerRepository.save(printer);
         }
     }
+    // @Override
+    // public void addPrintingLog(ArrayList<PrintingLog> printingLog, String printerID, String id) {
+    //     for (PrintingLog log : printingLog) {
+    //         // Tìm Student
+    //         Student student = studentRepository.findById(id)
+    //                 .orElseThrow(() -> new RuntimeException("Không tìm thấy học sinh"));
 
+    //         // Tìm Printer
+    //         Printer printer = printerRepository.findById(printerID)
+    //                 .orElseThrow(() -> new RuntimeException("không tìm thấy máy in"));
 
+    //         // Kiểm tra PageSize
+    //         PageSize pageSize = log.getPageSize();
+    //         if (pageSize == null) {
+    //             throw new RuntimeException("PageSize không được để trống.");
+    //         }
+
+    //         // Xác định hệ số nhân dựa vào PageSize
+    //         double scale;
+    //         switch (pageSize) {
+    //             case A1 -> scale = 8.0;
+    //             case A2 -> scale = 4.0;
+    //             case A3 -> scale = 2.0;
+    //             case A4 -> scale = 1.0;
+    //             default -> throw new RuntimeException("Kích thước giấy không hợp lệ.");
+    //         }
+
+    //         // Tính số trang tương đương A4
+    //         int equivalentPages = (int) (log.getNumOfPages() * scale);
+
+    //         // Tính số trang cần thiết
+    //         int requiredPages = equivalentPages * log.getNumOfCopies();
+
+    //         // Kiểm tra balance của Student
+    //         if (student.getBalance() < requiredPages) {
+    //             throw new RuntimeException("Insufficient balance. Please purchase more pages.");
+    //         }
+
+    //         // Trừ số trang từ balance của Student
+    //         int remainingBalance = student.getBalance() - requiredPages;
+    //         student.setBalance(remainingBalance);
+
+    //         // Cập nhật thông tin log
+    //         log.setStartDate(LocalDateTime.now());
+    //         log.setEndDate(LocalDateTime.now().plusSeconds(requiredPages * 5));
+    //         log.setStudent(student);
+    //         log.setPrinter(printer);
+    //         log.setNumOfPages(equivalentPages); // Cập nhật số trang tương đương A4
+
+    //         // Lưu log vào database
+    //         printingLogRepository.save(log);
+
+    //         // Cập nhật thông tin Printer
+    //         printer.setStatus(false); // Chuyển trạng thái sang "đang sử dụng"
+    //         printer.setInkAmount(printer.getInkAmount() - requiredPages / 20);
+    //         printer.setPageAmount(printer.getPageAmount() - requiredPages);
+
+    //         // Đặt lại trạng thái máy in sau khi in xong
+    //         printerHelper.schedulePrinterStatusReset(printerID);
+
+    //         if (printer.getInkAmount() <= 0)
+    //             printer.setInkAmount(100);
+    //         if (printer.getPageAmount() <= 0)
+    //             printer.setPageAmount(10000);
+
+    //         // Thêm log vào danh sách của Printer
+    //         printer.getPrintingLogs().add(log);
+
+    //         // Lưu lại Printer
+    //         printerRepository.save(printer);
+
+    //         // Lưu lại Student
+    //         student.getPrintingLogs().add(log);
+    //         studentRepository.save(student);
+    //     }
+    // }
+
+    
+    
+    
     // @Override
     // public void addPrintingLog(ArrayList<PrintingLog> printingLog, String printerID, String id) {
     //     for (PrintingLog log : printingLog) {
@@ -256,7 +357,6 @@ public class StudentServiceImpl implements StudentService {
 
     //         // Lưu lại thông tin Student để cập nhật danh sách printingLogs
     //         student.getPrintingLogs().add(log);
-
 
     //         studentRepository.save(student);
 
@@ -312,7 +412,6 @@ public class StudentServiceImpl implements StudentService {
     //         if (printer.getPageAmount() <= 0)
     //             printer.setPageAmount(10000);
 
-
     //             // Thêm log mới vào danh sách
     //         printer.getPrintingLogs().addAll(printingLog);
 
@@ -353,9 +452,6 @@ public class StudentServiceImpl implements StudentService {
                 .orElseThrow(() -> new RuntimeException("Student not found"));
     }
 
-
-
-
     @Override
     public Student registerStudent(Student student) throws Exception {
         // Kiểm tra nếu username đã tồn tại
@@ -366,7 +462,6 @@ public class StudentServiceImpl implements StudentService {
         // Thêm student mới vào cơ sở dữ liệu
         return studentRepository.save(student);
     }
-
 
     @Override
     public void buyPage(PaymentLog paymentLog, String id) {
@@ -381,7 +476,7 @@ public class StudentServiceImpl implements StudentService {
         PageUnitPrice pageUnitPrice = pageUnitRepo.findById("1")
                 .orElseThrow(() -> new RuntimeException("PageUnitPrice not found"));
 
-          // Tính toán số tiền cần thanh toán
+        // Tính toán số tiền cần thanh toán
         int amountToAdd = paymentLog.getNumOfPages() * pageUnitPrice.getValue();
         student.setOutstandingAmount(student.getOutstandingAmount() + amountToAdd);
 
@@ -400,41 +495,41 @@ public class StudentServiceImpl implements StudentService {
         studentRepository.save(student);
     }
 
-//     @Override
-// public void buyPage(PaymentLog paymentLog, String id) {
-//     // Tìm kiếm thông tin student
-//     Student student = studentRepository.findById(id)
-//             .orElseThrow(() -> new RuntimeException("Student not found"));
+    //     @Override
+    // public void buyPage(PaymentLog paymentLog, String id) {
+    //     // Tìm kiếm thông tin student
+    //     Student student = studentRepository.findById(id)
+    //             .orElseThrow(() -> new RuntimeException("Student not found"));
 
-//     // Cập nhật số dư của student
-//     student.setBalance(student.getBalance() + paymentLog.getNumOfPages());
-//     studentRepository.save(student);
+    //     // Cập nhật số dư của student
+    //     student.setBalance(student.getBalance() + paymentLog.getNumOfPages());
+    //     studentRepository.save(student);
 
-//     // Lấy giá trị price từ PageUnitPrice với id là "1"
-//     PageUnitPrice pageUnitPrice = pageUnitRepo.findById("1")
-//             .orElseThrow(() -> new RuntimeException("PageUnitPrice not found"));
+    //     // Lấy giá trị price từ PageUnitPrice với id là "1"
+    //     PageUnitPrice pageUnitPrice = pageUnitRepo.findById("1")
+    //             .orElseThrow(() -> new RuntimeException("PageUnitPrice not found"));
 
-//     // Thiết lập giá trị unitPrice cho paymentLog
-//     paymentLog.setStudent(student);
-//     paymentLog.setUnitPrice(pageUnitPrice.getValue());
-    
-//     // Lưu paymentLog
-//     paymentLog.setPayDate(LocalDateTime.now());
-//     paymentLogRepository.save(paymentLog);
-// }
+    //     // Thiết lập giá trị unitPrice cho paymentLog
+    //     paymentLog.setStudent(student);
+    //     paymentLog.setUnitPrice(pageUnitPrice.getValue());
 
-// Phương thức để cập nhật giá trị price của PageUnitPrice
-public void updatePrice(String id, Integer newPrice) {
-    // Lấy đối tượng PageUnitPrice theo id
-    PageUnitPrice pageUnitPrice = pageUnitRepo.findById(id)
-            .orElseThrow(() -> new RuntimeException("PageUnitPrice not found"));
+    //     // Lưu paymentLog
+    //     paymentLog.setPayDate(LocalDateTime.now());
+    //     paymentLogRepository.save(paymentLog);
+    // }
 
-    // Cập nhật giá trị price
-    pageUnitPrice.setPrice(newPrice);
+    // Phương thức để cập nhật giá trị price của PageUnitPrice
+    public void updatePrice(String id, Integer newPrice) {
+        // Lấy đối tượng PageUnitPrice theo id
+        PageUnitPrice pageUnitPrice = pageUnitRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("PageUnitPrice not found"));
 
-    // Lưu lại vào MongoDB
-    pageUnitRepo.save(pageUnitPrice);
-}
+        // Cập nhật giá trị price
+        pageUnitPrice.setPrice(newPrice);
+
+        // Lưu lại vào MongoDB
+        pageUnitRepo.save(pageUnitPrice);
+    }
 
     @Override
     public List<PrinterStudentDto> findAllPrinterForStudents() {
@@ -451,7 +546,6 @@ public void updatePrice(String id, Integer newPrice) {
                 .collect(Collectors.toList());
     }
 
-    
     @Override
     public boolean isUsernameTaken(String username) {
         return studentRepository.existsByUsername(username);

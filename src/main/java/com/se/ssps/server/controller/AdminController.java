@@ -215,10 +215,9 @@ public class AdminController {
     @PostMapping("/addprinter")
     public ApiResponse addPrinter(@RequestParam(name = "room-name") String roomName,
             @RequestParam(name = "building-name") String buildingName,
-            @RequestParam(name = "campus-name") String campusName,
             @RequestBody Printer newPrinter) {
         try {
-            Printer savedPrinter = adminService.addPrinter(roomName, buildingName, campusName, newPrinter);
+            Printer savedPrinter = adminService.addPrinter(roomName, buildingName, newPrinter);
             return new ApiResponse("success", "Máy in đã được thêm thành công.", savedPrinter);
         } catch (Exception e) {
             return new ApiResponse("error", e.getMessage(), null);

@@ -14,7 +14,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 //import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-
 import com.se.ssps.server.entity.user.Admin;
 // import com.se.ssps.server.entity.user.User;
 // import com.se.ssps.server.dto.AdminRegistrationRequest;
@@ -50,8 +49,6 @@ import com.se.ssps.server.repository.RoomRepository;
 //import com.se.ssps.server.repository.user.UserRepository;
 
 import com.se.ssps.server.stat.ChartValue;
-
-
 
 // import org.springframework.beans.factory.annotation.Autowired;
 // import org.springframework.data.mongodb.core.MongoTemplate;
@@ -111,74 +108,56 @@ public class AdminServiceImpl implements AdminService {
 
     // @Override
     // public Printer addPrinter(String roomName, Printer newPrinter) {
-    //     // Tìm phòng theo tên
-    //     Room room = roomRepository.findByRoomName(roomName);
+    // // Tìm phòng theo tên
+    // Room room = roomRepository.findByRoomName(roomName);
 
-    //     // Kiểm tra nếu không tìm thấy phòng
-    //     if (room == null) {
-    //         throw new RuntimeException("Không tìm thấy phòng với tên: " + roomName);
-    //     }
+    // // Kiểm tra nếu không tìm thấy phòng
+    // if (room == null) {
+    // throw new RuntimeException("Không tìm thấy phòng với tên: " + roomName);
+    // }
 
-    //     // Gán phòng cho máy in
-    //     newPrinter.setRoom(room);
+    // // Gán phòng cho máy in
+    // newPrinter.setRoom(room);
 
-    //     // Lưu máy in vào database
-    //     Printer savedPrinter = printerRepository.save(newPrinter);
+    // // Lưu máy in vào database
+    // Printer savedPrinter = printerRepository.save(newPrinter);
 
-    //     // Cập nhật trạng thái của phòng
-    //     room.setPrinter(savedPrinter);
-    //     room.setHavePrinter(true);
-    //     roomRepository.save(room);
+    // // Cập nhật trạng thái của phòng
+    // room.setPrinter(savedPrinter);
+    // room.setHavePrinter(true);
+    // roomRepository.save(room);
 
-    //     return savedPrinter;
+    // return savedPrinter;
     // }
 
     // @Override
-    // public Printer addPrinter(String roomName, String buildingName, String campusName, Printer newPrinter) {
-    //     Room room = roomRepository.findByRoomName(roomName);
-    //     if (room == null) {
-    //         room = new Room();
-    //         room.setRoomName(roomName);
-    //         roomRepository.save(room);
-    //     }
-    //     Building building = buildingRepository.findByBuildingName(buildingName);
-    //     if (building == null) {
-    //         building = new Building();
-    //         building.setBuildingName(buildingName);
-    //         buildingRepository.save(building);
-    //     }
-    //     Campus campus = campusRepository.findByCampusName(campusName);
-    //     if (campus == null) {
-    //         campus = new Campus();
-    //         campus.setCampusName(campusName); 
-    //         campusRepository.save(campus);  //oom.getCampus() != null&& room.getBuilding().getBuildingName().equals(buildingName)
-    //     }
-    //     if (room.isHavePrinter() && building.getBuildingName().equals(buildingName) && campus.getCampusName().equals(campusName)) {
-    //         throw new RuntimeException("Phòng này đã có máy in, không thể thêm máy in mới.");
-    //     }
-    //     newPrinter.setRoom(room);
-    //     newPrinter.setBuilding(building);
-    //     newPrinter.setCampus(campus);
-    //     Printer savedPrinter = printerRepository.save(newPrinter);
-    //     room.setPrinter(savedPrinter);
-    //     room.setHavePrinter(true);
-    //     roomRepository.save(room);
-    //     return savedPrinter;
+    // public Printer addPrinter(String roomName, String buildingName, String
+    // campusName, Printer newPrinter) {
+    // Room room = roomRepository.findByRoomName(roomName);
+    // if (room == null) {
+    // room = new Room();
+    // room.setRoomName(roomName);
+    // roomRepository.save(room);
     // }
+    // Building building = buildingRepository.findByBuildingName(buildingName);
+    // if (building == null) {
+    // building = new Building();
+    // building.setBuildingName(buildingName);
+    // buildingRepository.save(building);
+    // }
+    //
+
     @Override
-    public Printer addPrinter(String roomName, String buildingName, String campusName, Printer newPrinter) {
+    public Printer addPrinter(String roomName, String buildingName, Printer newPrinter) {
         Room room = roomRepository.findByRoomName(roomName);
         if (room == null) {
             room = new Room();
             room.setRoomName(roomName);
-            roomRepository.save(room); 
+            roomRepository.save(room);
         }
         if (room.isHavePrinter()) {
-            Building roomBuilding = room.getBuilding(); 
-            Campus roomCampus = room.getCampus(); 
-            if (roomBuilding != null && roomCampus != null
-                    && roomBuilding.getBuildingName().equals(buildingName)
-                    && roomCampus.getCampusName().equals(campusName)) {
+            Building roomBuilding = room.getBuilding();
+            if (roomBuilding != null && roomBuilding.getBuildingName().equals(buildingName)) {
                 throw new RuntimeException("Phòng này đã có máy in, không thể thêm máy in mới.");
             }
         }
@@ -188,34 +167,25 @@ public class AdminServiceImpl implements AdminService {
             building.setBuildingName(buildingName);
             buildingRepository.save(building);
         }
-        Campus campus = campusRepository.findByCampusName(campusName);
-        if (campus == null) {
-            campus = new Campus();
-            campus.setCampusName(campusName);
-            campusRepository.save(campus);
-        }
         newPrinter.setRoom(room);
         newPrinter.setBuilding(building);
-        newPrinter.setCampus(campus);
         Printer savedPrinter = printerRepository.save(newPrinter);
         room.setPrinter(savedPrinter);
         room.setHavePrinter(true);
-        room.setBuilding(building); 
-        room.setCampus(campus); 
-        roomRepository.save(room); 
+        room.setBuilding(building);
+        roomRepository.save(room);
 
         return savedPrinter;
     }
 
-
-
     // public Printer addPrinter(String room_id, Printer newPrinter) {
-    //     Room room = roomRepository.findById(room_id).orElseThrow(() -> new RuntimeException("Room not found"));
-    //     newPrinter.setRoom(room);
-    //     printerRepository.save(newPrinter);
-    //     room.setPrinter(newPrinter);
-    //     roomRepository.save(room);
-    //     return newPrinter;
+    // Room room = roomRepository.findById(room_id).orElseThrow(() -> new
+    // RuntimeException("Room not found"));
+    // newPrinter.setRoom(room);
+    // printerRepository.save(newPrinter);
+    // room.setPrinter(newPrinter);
+    // roomRepository.save(room);
+    // return newPrinter;
     // }
 
     @Override
@@ -228,11 +198,12 @@ public class AdminServiceImpl implements AdminService {
     // CÁI NÀY XONG RỒI
     // @Override
     // public Map<String, Boolean> deletePrinter(Integer id) {
-    //     HashMap<String, Boolean> response = new HashMap<>();
-    //     Printer printer = printerRepository.findById(id).orElseThrow(() -> new RuntimeException("Printer not found"));
-    //     printerRepository.delete(printer);
-    //     response.put("accepted", true);
-    //     return response;
+    // HashMap<String, Boolean> response = new HashMap<>();
+    // Printer printer = printerRepository.findById(id).orElseThrow(() -> new
+    // RuntimeException("Printer not found"));
+    // printerRepository.delete(printer);
+    // response.put("accepted", true);
+    // return response;
     // }
     @Override
     public Map<String, Boolean> deletePrinter(Integer id) { // Nhận Integer theo định nghĩa lớp cha
@@ -322,7 +293,7 @@ public class AdminServiceImpl implements AdminService {
     // =====================================================================================
     // @Override
     // public List<Building> findAllBuilding() {
-    //     return buildingRepository.findAll();
+    // return buildingRepository.findAll();
     // }
     @Override
     public List<Building> findAllBuilding() {
@@ -340,41 +311,41 @@ public class AdminServiceImpl implements AdminService {
     // *************************************************************** */
     // @Override
     // public Building addBuilding(Integer campus_id, Building newBuilding) {
-    //     List<Campus> campusCheckList = campusRepository.findAll();
-    //     for (Campus campus : campusCheckList) {
-    //         if (campus.getId().equals(campus_id)) {
-    //             newBuilding.setCampus(campus);
-    //             campus.getBuildings().add(newBuilding);
-    //             return buildingRepository.save(newBuilding);
-    //         }
-    //     }
-    //     return null;
+    // List<Campus> campusCheckList = campusRepository.findAll();
+    // for (Campus campus : campusCheckList) {
+    // if (campus.getId().equals(campus_id)) {
+    // newBuilding.setCampus(campus);
+    // campus.getBuildings().add(newBuilding);
+    // return buildingRepository.save(newBuilding);
+    // }
+    // }
+    // return null;
     // }
 
     // 11/25/2024
     @Override
     // public Building addBuilding(Integer campus_id, Building newBuilding) {
-    //     List<Campus> campusCheckList = campusRepository.findAll();
-    //     for (Campus campus : campusCheckList) {
-    //         // Chuyển campus_id (Integer) thành String nếu campus.getId() là String
-    //         if (campus.getId().equals(String.valueOf(campus_id))) {
-    //             newBuilding.setCampus(campus);
-    //             campus.getBuildings().add(newBuilding);
-    //             return buildingRepository.save(newBuilding);
-    //         }
-    //     }
-    //     return null;
+    // List<Campus> campusCheckList = campusRepository.findAll();
+    // for (Campus campus : campusCheckList) {
+    // // Chuyển campus_id (Integer) thành String nếu campus.getId() là String
+    // if (campus.getId().equals(String.valueOf(campus_id))) {
+    // newBuilding.setCampus(campus);
+    // campus.getBuildings().add(newBuilding);
+    // return buildingRepository.save(newBuilding);
+    // }
+    // }
+    // return null;
     // }
     // public Building addBuilding(String campusName, Building building) {
-    //     // Tìm Campus theo tên
-    //     Campus campus = campusRepository.findByCampusName(campusName)
-    //             .orElseThrow(() -> new RuntimeException("Campus không tồn tại!"));
+    // // Tìm Campus theo tên
+    // Campus campus = campusRepository.findByCampusName(campusName)
+    // .orElseThrow(() -> new RuntimeException("Campus không tồn tại!"));
 
-    //     // Gán Building vào Campus
-    //     building.setCampus(campus);
+    // // Gán Building vào Campus
+    // building.setCampus(campus);
 
-    //     // Lưu Building vào database
-    //     return buildingRepository.save(building);
+    // // Lưu Building vào database
+    // return buildingRepository.save(building);
     // }
     public Building addBuilding(String campusName, Building building) {
         // Tìm Campus theo tên
@@ -405,7 +376,7 @@ public class AdminServiceImpl implements AdminService {
         return savedBuilding;
     }
 
-    //*************************************************************** */
+    // *************************************************************** */
 
     @Override
     public Map<String, Boolean> deleteBuilding(Integer id) {
@@ -434,20 +405,20 @@ public class AdminServiceImpl implements AdminService {
         return roomRepository.findAll();
     }
 
-    //25/11/2024
+    // 25/11/2024
     @Override
     // public Room addRoom(Integer building_id, Room newRoom) {
-    //     List<Building> buildingCheckList = buildingRepository.findAll();
-    //     for (Building building : buildingCheckList) {
-    //         // Chuyển building_id từ Integer sang String
-    //         if (building.getId().equals(String.valueOf(building_id))) {
-    //             newRoom.setBuilding(building);
-    //             newRoom.setHavePrinter(false);
-    //             building.getRooms().add(newRoom);
-    //             return roomRepository.save(newRoom);
-    //         }
-    //     }
-    //     return null;
+    // List<Building> buildingCheckList = buildingRepository.findAll();
+    // for (Building building : buildingCheckList) {
+    // // Chuyển building_id từ Integer sang String
+    // if (building.getId().equals(String.valueOf(building_id))) {
+    // newRoom.setBuilding(building);
+    // newRoom.setHavePrinter(false);
+    // building.getRooms().add(newRoom);
+    // return roomRepository.save(newRoom);
+    // }
+    // }
+    // return null;
     // }
 
     public Room addRoom(String buildingName, Room room) {
@@ -515,7 +486,7 @@ public class AdminServiceImpl implements AdminService {
         return paymentLogRepository.findAll();
     }
 
-    // @Override
+    // @Overrid
     // public boolean addPaymentLog(PaymentLog paymentLog) {
     // // TODO Auto-generated method stub
     // throw new UnsupportedOperationException("Unimplemented method
@@ -527,8 +498,9 @@ public class AdminServiceImpl implements AdminService {
     // Thao tác đối với cấp phát trang
     // @Override
     // public List<PageAllocation> findAllPageAllocations() {
-    //     pageAllocationRepository.updatePageAllocationStatus(); // Hàm cập nhật trạng thái
-    //     return pageAllocationRepository.findAll(); // Tìm tất cả các phân bổ trang
+    // pageAllocationRepository.updatePageAllocationStatus(); // Hàm cập nhật trạng
+    // thái
+    // return pageAllocationRepository.findAll(); // Tìm tất cả các phân bổ trang
     // }
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -551,17 +523,17 @@ public class AdminServiceImpl implements AdminService {
         return pageAllocationRepository.save(newPageAllocation); // Lưu mới
     }
 
-    //******************************************************************* */
+    // ******************************************************************* */
     // @Override
     // public boolean deletePageAllocation(Integer id) {
-    //     PageAllocation allocation = pageAllocationRepository.findAllocationById(id);
+    // PageAllocation allocation = pageAllocationRepository.findAllocationById(id);
 
-    //     if (allocation.getStatus()) { // Nếu trạng thái là true (đang hoạt động)
-    //         return false;
-    //     }
+    // if (allocation.getStatus()) { // Nếu trạng thái là true (đang hoạt động)
+    // return false;
+    // }
 
-    //     pageAllocationRepository.delete(allocation); // Xóa phân bổ trang
-    //     return true;
+    // pageAllocationRepository.delete(allocation); // Xóa phân bổ trang
+    // return true;
     // }
     @Override
     public boolean deletePageAllocation(Integer id) {
@@ -575,7 +547,7 @@ public class AdminServiceImpl implements AdminService {
         pageAllocationRepository.delete(allocation); // Xóa phân bổ trang
         return true;
     }
-    //************************************************************************** */
+    // ************************************************************************** */
 
     // =====================================================================================
     // =====================================================================================
@@ -590,28 +562,30 @@ public class AdminServiceImpl implements AdminService {
         return fileTypeRepository.save(fileType);
     }
 
-    //********************************************** */
+    // ********************************************** */
     // @Override
     // public void deleteType(Integer fileTypeId) {
-    //     fileTypeRepository.deleteById(fileTypeId);
+    // fileTypeRepository.deleteById(fileTypeId);
     // }
     @Override
     public void deleteType(Integer fileTypeId) {
         fileTypeRepository.deleteById(fileTypeId.toString()); // Chuyển Integer thành String
     }
-    //***************************************** */
+    // ***************************************** */
 
     // =====================================================================================
     // =====================================================================================
 
-    //************************************************************** */
+    // ************************************************************** */
     // @Override
     // public Config getAllConfig() {
-    //     Config returnConfig = new Config();
-    //     returnConfig.setFileTypeList(fileTypeRepository.findAll());
-    //     returnConfig.setMaxFileSize(maxFileSizeRepo.findFirst().orElse(new MaxFileSize()).getValue());
-    //     returnConfig.setPageUnitPrice(pageUnitPriceRepo.findFirst().orElse(new PageUnitPrice()).getValue());
-    //     return returnConfig;
+    // Config returnConfig = new Config();
+    // returnConfig.setFileTypeList(fileTypeRepository.findAll());
+    // returnConfig.setMaxFileSize(maxFileSizeRepo.findFirst().orElse(new
+    // MaxFileSize()).getValue());
+    // returnConfig.setPageUnitPrice(pageUnitPriceRepo.findFirst().orElse(new
+    // PageUnitPrice()).getValue());
+    // return returnConfig;
     // }
 
     @Override
@@ -629,33 +603,34 @@ public class AdminServiceImpl implements AdminService {
 
         return returnConfig;
     }
-    //********************************************************** */
+    // ********************************************************** */
 
-    //***************************************************************** */
+    // ***************************************************************** */
     // @Override
     // public MaxFileSize setMaxFileSize(double maxFileSize) {
-    //     MaxFileSize existing = maxFileSizeRepo.findFirst().orElse(null);
-    //     if (existing == null) {
-    //         MaxFileSize newMaxFileSize = new MaxFileSize(1, maxFileSize);
-    //         return maxFileSizeRepo.save(newMaxFileSize);
-    //     } else {
-    //         existing.setValue(maxFileSize);
-    //         return maxFileSizeRepo.save(existing);
-    //     }
+    // MaxFileSize existing = maxFileSizeRepo.findFirst().orElse(null);
+    // if (existing == null) {
+    // MaxFileSize newMaxFileSize = new MaxFileSize(1, maxFileSize);
+    // return maxFileSizeRepo.save(newMaxFileSize);
+    // } else {
+    // existing.setValue(maxFileSize);
+    // return maxFileSizeRepo.save(existing);
+    // }
     // }
     // @Override
     // public MaxFileSize setMaxFileSize(double maxFileSize) {
-    //     // Sử dụng findAll() và lấy phần tử đầu tiên
-    //     MaxFileSize existing = maxFileSizeRepo.findAll().stream().findFirst().orElse(null);
+    // // Sử dụng findAll() và lấy phần tử đầu tiên
+    // MaxFileSize existing =
+    // maxFileSizeRepo.findAll().stream().findFirst().orElse(null);
 
-    //     if (existing == null) {
-    //         // Tạo đối tượng mới với id mặc định (hoặc bạn có thể sử dụng id phù hợp)
-    //         MaxFileSize newMaxFileSize = new MaxFileSize("1", maxFileSize);
-    //         return maxFileSizeRepo.save(newMaxFileSize);
-    //     } else {
-    //         existing.setValue(maxFileSize); // Sử dụng setter
-    //         return maxFileSizeRepo.save(existing);
-    //     }
+    // if (existing == null) {
+    // // Tạo đối tượng mới với id mặc định (hoặc bạn có thể sử dụng id phù hợp)
+    // MaxFileSize newMaxFileSize = new MaxFileSize("1", maxFileSize);
+    // return maxFileSizeRepo.save(newMaxFileSize);
+    // } else {
+    // existing.setValue(maxFileSize); // Sử dụng setter
+    // return maxFileSizeRepo.save(existing);
+    // }
     // }
 
     @Autowired
@@ -678,19 +653,19 @@ public class AdminServiceImpl implements AdminService {
         return maxSizeRepository.save(existingRecord);
     }
 
-    //****************************************** */
+    // ****************************************** */
 
-    //******************************************************************** */
+    // ******************************************************************** */
     // @Override
     // public PageUnitPrice setPagePrice(Integer pagePrice) {
-    //     PageUnitPrice existing = pageUnitPriceRepo.findFirst().orElse(null);
-    //     if (existing == null) {
-    //         PageUnitPrice newPagePrice = new PageUnitPrice(1, pagePrice);
-    //         return pageUnitPriceRepo.save(newPagePrice);
-    //     } else {
-    //         existing.setValue(pagePrice);
-    //         return pageUnitPriceRepo.save(existing);
-    //     }
+    // PageUnitPrice existing = pageUnitPriceRepo.findFirst().orElse(null);
+    // if (existing == null) {
+    // PageUnitPrice newPagePrice = new PageUnitPrice(1, pagePrice);
+    // return pageUnitPriceRepo.save(newPagePrice);
+    // } else {
+    // existing.setValue(pagePrice);
+    // return pageUnitPriceRepo.save(existing);
+    // }
     // }
     @Override
     public PageUnitPrice setPagePrice(Integer pagePrice) {
@@ -705,35 +680,37 @@ public class AdminServiceImpl implements AdminService {
             return pageUnitPriceRepo.save(existing);
         }
     }
-    //*************************************************** */
+    // *************************************************** */
 
     // =====================================================================================
     // =====================================================================================
 
-    //******************************************************************** */
-    // private Double pagesNum(Integer printerId, LocalDateTime from, LocalDateTime to) {
-    //     return printingLogRepository.sumPageNum(printerId, from, to);
+    // ******************************************************************** */
+    // private Double pagesNum(Integer printerId, LocalDateTime from, LocalDateTime
+    // to) {
+    // return printingLogRepository.sumPageNum(printerId, from, to);
     // }
     private Double pagesNum(Integer printerId, LocalDateTime from, LocalDateTime to) {
         return printingLogRepository.sumPageNum(printerId.toString(), from, to); // Chuyển Integer thành String
     }
-    //********************************************************************* */
+    // ********************************************************************* */
 
     // ********************************************************************* */
     // @Override
     // public List<ChartValue> totalSquare(YearMonth from, YearMonth to) {
-    //     ArrayList<ChartValue> returnList = new ArrayList<>();
-    //     LocalDateTime fromDate = from.atDay(1).atStartOfDay();
-    //     LocalDateTime toDate = to.atEndOfMonth().atTime(23, 59, 59);
-    //     List<Printer> printerList = printerRepository.findAll();
+    // ArrayList<ChartValue> returnList = new ArrayList<>();
+    // LocalDateTime fromDate = from.atDay(1).atStartOfDay();
+    // LocalDateTime toDate = to.atEndOfMonth().atTime(23, 59, 59);
+    // List<Printer> printerList = printerRepository.findAll();
 
-    //     for (Printer printer : printerList) {
-    //         ChartValue newValue = new ChartValue();
-    //         newValue.setName(printer.getRoom().getRoomName() + printer.getRoom().getBuilding().getBuildingName());
-    //         newValue.setStat(pagesNum(printer.getId(), fromDate, toDate));
-    //         returnList.add(newValue);
-    //     }
-    //     return returnList;
+    // for (Printer printer : printerList) {
+    // ChartValue newValue = new ChartValue();
+    // newValue.setName(printer.getRoom().getRoomName() +
+    // printer.getRoom().getBuilding().getBuildingName());
+    // newValue.setStat(pagesNum(printer.getId(), fromDate, toDate));
+    // returnList.add(newValue);
+    // }
+    // return returnList;
     // }
     @Override
     public List<ChartValue> totalSquare(YearMonth from, YearMonth to) {
@@ -754,24 +731,27 @@ public class AdminServiceImpl implements AdminService {
         }
         return returnList;
     }
-    //********************************************************************************** */
+    // **********************************************************************************
+    // */
 
     // @Override
     // public List<ChartValue> printingRequest(YearMonth from, YearMonth to) {
-    //     ArrayList<ChartValue> returnList = new ArrayList<>();
-    //     LocalDateTime fromDate = from.atDay(1).atStartOfDay();
-    //     LocalDateTime toDate = to.atEndOfMonth().atTime(23, 59, 59);
-    //     List<Printer> printerList = printerRepository.findAll();
+    // ArrayList<ChartValue> returnList = new ArrayList<>();
+    // LocalDateTime fromDate = from.atDay(1).atStartOfDay();
+    // LocalDateTime toDate = to.atEndOfMonth().atTime(23, 59, 59);
+    // List<Printer> printerList = printerRepository.findAll();
 
-    //     for (Printer printer : printerList) {
-    //         ChartValue newValue = new ChartValue();
-    //         Double requestCount = printingLogRepository.countRequestById(printer.getId(), fromDate, toDate)
-    //                 .doubleValue();
-    //         newValue.setName(printer.getRoom().getRoomName() + printer.getRoom().getBuilding().getBuildingName());
-    //         newValue.setStat(requestCount);
-    //         returnList.add(newValue);
-    //     }
-    //     return returnList;
+    // for (Printer printer : printerList) {
+    // ChartValue newValue = new ChartValue();
+    // Double requestCount = printingLogRepository.countRequestById(printer.getId(),
+    // fromDate, toDate)
+    // .doubleValue();
+    // newValue.setName(printer.getRoom().getRoomName() +
+    // printer.getRoom().getBuilding().getBuildingName());
+    // newValue.setStat(requestCount);
+    // returnList.add(newValue);
+    // }
+    // return returnList;
     // }
     @Override
     public List<ChartValue> printingRequest(YearMonth from, YearMonth to) {
@@ -800,10 +780,9 @@ public class AdminServiceImpl implements AdminService {
             String roomName = printer.getRoom() != null ? printer.getRoom().getRoomName() : "Room ko xác định";
             String buildingName = printer.getBuilding() != null ? printer.getBuilding().getBuildingName()
                     : "Building ko xác định";
-            String campusName = printer.getCampus() != null ? printer.getCampus().getCampusName() : "Campus không xác định";
 
             // Ghép thông tin
-            newValue.setName(roomName + " " + buildingName + " " + campusName);
+            newValue.setName(buildingName + "-" + roomName);
 
             // Xử lý thống kê
             Double requestCount = requestCounts.getOrDefault(printer.getId(), 0L).doubleValue();
@@ -833,27 +812,30 @@ public class AdminServiceImpl implements AdminService {
         return returnList;
     }
 
-    //************************************************************************ */
+    // ************************************************************************ */
     // @Override
     // public List<ChartValue> profitByMonth(YearMonth from, YearMonth to) {
-    //     ArrayList<ChartValue> returnList = new ArrayList<>();
-    //     while (!from.isAfter(to)) {
-    //         LocalDateTime fromDate = from.atDay(1).atStartOfDay();
-    //         LocalDateTime toDate = from.atEndOfMonth().atTime(23, 59, 59);
-    //         Integer pageNum = paymentLogRepository.countPageNums(fromDate, toDate);
-    //         if (pageNum == null) {
-    //             pageNum = 0;
-    //         }
-    //         //Double profit = pageNum * pageUnitPriceRepo.findFirst().orElse(new PageUnitPrice()).getValue();
-    //         Double profit = pageUnitPriceRepo.findFirst()
-    //                 .map(pageUnitPrice -> pageUnitPrice.getPrice().doubleValue()) // Chuyển Integer thành Double
-    //                 .orElse(0.0); // Giá trị mặc định là 0.0 nếu không có giá trị
+    // ArrayList<ChartValue> returnList = new ArrayList<>();
+    // while (!from.isAfter(to)) {
+    // LocalDateTime fromDate = from.atDay(1).atStartOfDay();
+    // LocalDateTime toDate = from.atEndOfMonth().atTime(23, 59, 59);
+    // Integer pageNum = paymentLogRepository.countPageNums(fromDate, toDate);
+    // if (pageNum == null) {
+    // pageNum = 0;
+    // }
+    // //Double profit = pageNum * pageUnitPriceRepo.findFirst().orElse(new
+    // PageUnitPrice()).getValue();
+    // Double profit = pageUnitPriceRepo.findFirst()
+    // .map(pageUnitPrice -> pageUnitPrice.getPrice().doubleValue()) // Chuyển
+    // Integer thành Double
+    // .orElse(0.0); // Giá trị mặc định là 0.0 nếu không có giá trị
 
-    //         ChartValue value = new ChartValue(from.getMonth().toString() + from.getYear(), profit);
-    //         returnList.add(value);
-    //         from = from.plusMonths(1);
-    //     }
-    //     return returnList;
+    // ChartValue value = new ChartValue(from.getMonth().toString() +
+    // from.getYear(), profit);
+    // returnList.add(value);
+    // from = from.plusMonths(1);
+    // }
+    // return returnList;
     // }
     @Override
     public List<ChartValue> profitByMonth(YearMonth from, YearMonth to) {
@@ -887,23 +869,24 @@ public class AdminServiceImpl implements AdminService {
         }
         return returnList;
     }
-    //********************************************************************* */
+    // ********************************************************************* */
 
     // @Override
     // public List<PrinterDto> findAllPrinterStat() {
-    //     List<PrinterDto> returnList = new ArrayList<>();
-    //     List<Printer> printerList = printerRepository.findAll(); // MongoDB: Tìm tất cả máy in
+    // List<PrinterDto> returnList = new ArrayList<>();
+    // List<Printer> printerList = printerRepository.findAll(); // MongoDB: Tìm tất
+    // cả máy in
 
-    //     for (Printer printer : printerList) {
-    //         PrinterDto newValue = new PrinterDto(printer);
+    // for (Printer printer : printerList) {
+    // PrinterDto newValue = new PrinterDto(printer);
 
-    //         // Sử dụng aggregate hoặc tính toán diện tích in bằng MongoDB repository
-    //         Double squarePrinting = printingLogRepository.totalSquare(printer.getId());
-    //         newValue.setSquarePringting(squarePrinting);
+    // // Sử dụng aggregate hoặc tính toán diện tích in bằng MongoDB repository
+    // Double squarePrinting = printingLogRepository.totalSquare(printer.getId());
+    // newValue.setSquarePringting(squarePrinting);
 
-    //         returnList.add(newValue);
-    //     }
-    //     return returnList;
+    // returnList.add(newValue);
+    // }
+    // return returnList;
     // }
 
     @Autowired
@@ -914,7 +897,6 @@ public class AdminServiceImpl implements AdminService {
         if (adminRepository.findByUsername(admin.getUsername()) != null) {
             throw new RuntimeException("Username đã tồn tại!");
         }
-
         return adminRepository.save(admin);
     }
 

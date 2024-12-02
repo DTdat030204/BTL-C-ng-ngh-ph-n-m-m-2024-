@@ -6,6 +6,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
+import javax.persistence.Enumerated;
+import javax.persistence.EnumType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.se.ssps.server.entity.user.Student;
@@ -33,15 +35,12 @@ public class PrintingLog {
 
     private boolean isDoubleSided;
 
-    private PageSize pageSize;
-
-    private LocalDateTime startDate;  // có cần ko
+    private LocalDateTime startDate; // có cần ko
 
     private LocalDateTime endDate;
 
     private Double squarePrinting;
 
-    
     @DBRef
     @JsonIgnore // Bỏ qua khi tuần tự hóa JSON
     private Printer printer; // Tham chiếu đến tài liệu Printer
@@ -50,16 +49,27 @@ public class PrintingLog {
     @JsonIgnore
     private Student student; // Tham chiếu đến tài liệu Student
 
-    public void calculateSquare() {
-        final double a4Square = 0.06237;
-        if (this.pageSize == PageSize.A4)
-            this.squarePrinting = a4Square * this.numOfPages * this.numOfCopies;
-        else if (this.pageSize == PageSize.A3)
-            this.squarePrinting = a4Square * 2 * this.numOfPages * this.numOfCopies;
-        else if (this.pageSize == PageSize.A2)
-            this.squarePrinting = a4Square * 4 * this.numOfPages * this.numOfCopies;
-        else if (this.pageSize == PageSize.A1)
-            this.squarePrinting = a4Square * 8 * this.numOfPages * this.numOfCopies;
+    // public void calculateSquare() {
+    //     final double a4Square = 0.06237;
+    //     if (this.pageSize == PageSize.A4)
+    //         this.squarePrinting = a4Square * this.numOfPages * this.numOfCopies;
+    //     else if (this.pageSize == PageSize.A3)
+    //         this.squarePrinting = a4Square * 2 * this.numOfPages * this.numOfCopies;
+    //     else if (this.pageSize == PageSize.A2)
+    //         this.squarePrinting = a4Square * 4 * this.numOfPages * this.numOfCopies;
+    //     else if (this.pageSize == PageSize.A1)
+    //         this.squarePrinting = a4Square * 8 * this.numOfPages * this.numOfCopies;
+    // }
+    @Enumerated(EnumType.STRING)
+    private PageSize pageSize;
+
+    // Getter và Setter
+    public PageSize getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(PageSize pageSize) {
+        this.pageSize = pageSize;
     }
 }
 
