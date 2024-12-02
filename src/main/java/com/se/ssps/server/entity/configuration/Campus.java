@@ -27,11 +27,7 @@ public class Campus {
 
     private boolean isDel;
 
-    
-    @JsonManagedReference //25/11/2024
-    
-
-    
+    @JsonManagedReference // 25/11/2024
 
     @DBRef // Tham chiếu tới danh sách Building
     private List<Building> buildings;
@@ -42,10 +38,6 @@ public class Campus {
         return false;
     }
 }
-
-
-
-
 
 /*
  * ### Ý nghĩa của lớp `Campus`
@@ -94,5 +86,5 @@ public class Campus {
  * ---
  * 
  * Nếu bạn muốn biết thêm chi tiết về cách `Campus` tương tác với các lớp khác
- * hoặc cần giải thích thêm về một phần cụ thể, cứ gửi tiếp nhé! 
+ * hoặc cần giải thích thêm về một phần cụ thể, cứ gửi tiếp nhé!
  */

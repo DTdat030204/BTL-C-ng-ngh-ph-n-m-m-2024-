@@ -797,13 +797,13 @@ public class AdminServiceImpl implements AdminService {
             ChartValue newValue = new ChartValue();
 
             // Lấy thông tin room, building, và campus
-            String roomName = printer.getRoom() != null ? printer.getRoom().getRoomName() : "Unknown Room";
+            String roomName = printer.getRoom() != null ? printer.getRoom().getRoomName() : "Room ko xác định";
             String buildingName = printer.getBuilding() != null ? printer.getBuilding().getBuildingName()
-                    : "Unknown Building";
-            String campusName = printer.getCampus() != null ? printer.getCampus().getCampusName() : "Unknown Campus";
+                    : "Building ko xác định";
+            String campusName = printer.getCampus() != null ? printer.getCampus().getCampusName() : "Campus không xác định";
 
             // Ghép thông tin
-            newValue.setName(roomName + " " + buildingName + " (" + campusName + ")");
+            newValue.setName(roomName + " " + buildingName + " " + campusName);
 
             // Xử lý thống kê
             Double requestCount = requestCounts.getOrDefault(printer.getId(), 0L).doubleValue();
@@ -823,7 +823,7 @@ public class AdminServiceImpl implements AdminService {
         LocalDateTime toDate = to.atEndOfMonth().atTime(23, 59, 59);
 
         Double totalRequests = printingLogRepository.sumOfRequest(fromDate, toDate).doubleValue();
-        List<PageSize> pageSizes = List.of(PageSize.A5, PageSize.A4, PageSize.A3, PageSize.A2, PageSize.A1);
+        List<PageSize> pageSizes = List.of(PageSize.A4, PageSize.A3, PageSize.A2, PageSize.A1);
 
         for (PageSize pageSize : pageSizes) {
             Double count = printingLogRepository.countPageSize(pageSize, fromDate, toDate).doubleValue();

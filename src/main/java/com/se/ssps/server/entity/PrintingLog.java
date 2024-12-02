@@ -35,7 +35,7 @@ public class PrintingLog {
 
     private PageSize pageSize;
 
-    private LocalDateTime startDate;
+    private LocalDateTime startDate;  // có cần ko
 
     private LocalDateTime endDate;
 
@@ -60,8 +60,6 @@ public class PrintingLog {
             this.squarePrinting = a4Square * 4 * this.numOfPages * this.numOfCopies;
         else if (this.pageSize == PageSize.A1)
             this.squarePrinting = a4Square * 8 * this.numOfPages * this.numOfCopies;
-        else if (this.pageSize == PageSize.A5)
-            this.squarePrinting = a4Square / 2 * this.numOfPages * this.numOfCopies;
     }
 }
 
