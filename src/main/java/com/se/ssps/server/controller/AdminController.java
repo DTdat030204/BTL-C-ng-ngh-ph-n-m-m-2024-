@@ -33,6 +33,7 @@ import com.se.ssps.server.entity.configuration.Room;
 //import com.se.ssps.server.entity.response.LoginResponse;
 import com.se.ssps.server.service.user.AdminService;
 import com.se.ssps.server.stat.ChartValue;
+import com.se.ssps.server.stat.ChartValueByType;
 
 @CrossOrigin
 @RestController
@@ -437,6 +438,13 @@ public class AdminController {
         return adminService.profitByMonthByPrinter(YearMonth.parse(from), YearMonth.parse(to), printerId);
     }
     
+    @GetMapping("/statistics/paper-usage-by-month")
+    public List<ChartValueByType> paperUsageByMonth(
+        @RequestParam String from,
+        @RequestParam String to) {
+    return adminService.paperUsageByMonth(YearMonth.parse(from), YearMonth.parse(to));
+}
+
     
 
 }

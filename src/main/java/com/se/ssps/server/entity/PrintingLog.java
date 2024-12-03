@@ -43,22 +43,36 @@ public class PrintingLog {
 
     private double printingCost; // Giá in của lần in này
 
-    // // Getter và Setter
-    // public double getPrintingCost() {
-    //     return printingCost;
-    // }
-
-    // public void setPrintingCost(double printingCost) {
-    //     this.printingCost = printingCost;
-    // }
+    private Integer totalPages;
 
     @DBRef
     @JsonIgnore // Bỏ qua khi tuần tự hóa JSON
     private Printer printer; // Tham chiếu đến tài liệu Printer
-
+    
     @DBRef
     @JsonIgnore
     private Student student; // Tham chiếu đến tài liệu Student
+    @Enumerated(EnumType.STRING)
+   
+    private PageSize pageSize;
+    
+    // // Getter và Setter
+    // public PageSize getPageSize() {
+    //     return pageSize;
+    // }
+    
+    // public void setPageSize(PageSize pageSize) {
+    //     this.pageSize = pageSize;
+    // }
+}
+// // Getter và Setter
+// public double getPrintingCost() {
+//     return printingCost;
+// }
+
+// public void setPrintingCost(double printingCost) {
+//     this.printingCost = printingCost;
+// }
 
     // public void calculateSquare() {
     //     final double a4Square = 0.06237;
@@ -71,18 +85,6 @@ public class PrintingLog {
     //     else if (this.pageSize == PageSize.A1)
     //         this.squarePrinting = a4Square * 8 * this.numOfPages * this.numOfCopies;
     // }
-    @Enumerated(EnumType.STRING)
-    private PageSize pageSize;
-
-    // Getter và Setter
-    public PageSize getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(PageSize pageSize) {
-        this.pageSize = pageSize;
-    }
-}
 
 
 

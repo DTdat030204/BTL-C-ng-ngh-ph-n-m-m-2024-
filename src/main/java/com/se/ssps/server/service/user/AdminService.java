@@ -23,6 +23,7 @@ import com.se.ssps.server.entity.configuration.PageAllocation;
 import com.se.ssps.server.entity.configuration.PageUnitPrice;
 import com.se.ssps.server.entity.configuration.Room;
 import com.se.ssps.server.stat.ChartValue;
+import com.se.ssps.server.stat.ChartValueByType;
 
 @Service
 public interface AdminService {
@@ -124,5 +125,7 @@ public interface AdminService {
     public Admin findAdminByUsername(String username);
 
     public List<ChartValue> profitByMonthByPrinter(YearMonth from, YearMonth to, String printerId);
+    
+    public List<ChartValueByType> paperUsageByMonth(YearMonth from, YearMonth to);
 
 }

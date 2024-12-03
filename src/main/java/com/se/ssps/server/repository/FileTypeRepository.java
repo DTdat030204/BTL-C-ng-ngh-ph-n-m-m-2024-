@@ -1,6 +1,10 @@
 
 package com.se.ssps.server.repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -13,6 +17,13 @@ public interface FileTypeRepository extends MongoRepository<FileType, String> {
     // Truy vấn FileType bằng ID
     @Query("{ '_id': ?0 }")
     public FileType findTypeById(String id);
+
+    @Aggregation(pipeline = {
+    "{ $match: { startDate: { $gte: ?0, $lte: ?1 } } }",
+    "{ $group: { _id: '$pageSize', totalPages: { $sum: { $multiply: ['$numOfPages', '$numOfCopies'] } } } }"
+    })
+    List<FileType> calculateTotalPagesByType(LocalDateTime fromDate, LocalDateTime toDate);
+
 }
 
 

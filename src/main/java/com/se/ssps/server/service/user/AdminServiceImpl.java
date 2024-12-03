@@ -16,6 +16,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
 import com.se.ssps.server.entity.user.Admin;
+import com.se.ssps.server.helper.PaperTypeUsage;
 // import com.se.ssps.server.entity.user.User;
 // import com.se.ssps.server.dto.AdminRegistrationRequest;
 //import com.se.ssps.server.dto.PrinterDto;
@@ -51,6 +52,7 @@ import com.se.ssps.server.repository.RoomRepository;
 
 import com.se.ssps.server.stat.ChartValue;
 //import java.util.Optional;
+import com.se.ssps.server.stat.ChartValueByType;
 
 // import org.springframework.beans.factory.annotation.Autowired;
 // import org.springframework.data.mongodb.core.MongoTemplate;
@@ -987,6 +989,67 @@ public class AdminServiceImpl implements AdminService {
         }
         return returnList;
     }
+
+    // @Override
+    // public List<ChartValue> paperUsageByMonth(YearMonth from, YearMonth to) {
+    //     ArrayList<ChartValue> returnList = new ArrayList<>();
+    //     while (!from.isAfter(to)) {
+    //         // Xác định khoảng thời gian bắt đầu và kết thúc trong tháng
+    //         LocalDateTime fromDate = from.atDay(1).atStartOfDay();
+    //         LocalDateTime toDate = from.atEndOfMonth().atTime(23, 59, 59);
+
+    //         // Lấy kết quả từ repository
+    //         List<PrintingLog> result = printingLogRepository.calculateTotalPagesByType(fromDate, toDate);
+
+    //         // Tạo danh sách loại giấy và số lượng tương ứng
+    //         List<PrintingLog> paperTypes = new ArrayList<>();
+    //         for (PrintingLog doc : result) {
+    //             Pagesize paperType = doc.getPageSize(); // A3, A4
+    //             Integer totalPages = doc.getInteger("totalPages", 0);
+    //             paperTypes.add(new PaperTypeUsage(paperType, totalPages));
+    //         }
+
+    //         // Tạo đối tượng ChartValueByType
+    //         String label = from.getMonth().toString() + " " + from.getYear();
+    //         ChartValueByType value = new ChartValueByType(label, paperTypes);
+    //         returnList.add(value);
+
+    //         // Chuyển sang tháng tiếp theo
+    //         from = from.plusMonths(1);
+    //     }
+    //     return returnList;
+    // }
+    
+    @Override
+    public List<ChartValueByType> paperUsageByMonth(YearMonth from, YearMonth to) {
+        ArrayList<ChartValueByType> returnList = new ArrayList<>();
+        while (!from.isAfter(to)) {
+            // Xác định khoảng thời gian bắt đầu và kết thúc trong tháng
+            LocalDateTime fromDate = from.atDay(1).atStartOfDay();
+            LocalDateTime toDate = from.atEndOfMonth().atTime(23, 59, 59);
+
+            // Lấy kết quả từ repository
+            List<PrintingLog> result = printingLogRepository.calculateTotalPagesByType(fromDate, toDate);
+
+            // Tạo danh sách loại giấy và số lượng tương ứng
+            List<PaperTypeUsage> paperTypes = new ArrayList<>();
+            for (PrintingLog doc : result) {
+                PageSize paperSize = doc.getPageSize(); // A3, A4
+                Integer totalPages = doc.getTotalPages();
+                paperTypes.add(new PaperTypeUsage(paperSize, totalPages));
+            }
+
+            // Tạo đối tượng ChartValueByType
+            String label = from.getMonth().toString() + " " + from.getYear();
+            ChartValueByType value = new ChartValueByType(label, paperTypes);
+            returnList.add(value);
+
+            // Chuyển sang tháng tiếp theo
+            from = from.plusMonths(1);
+        }
+        return returnList;
+    }
+
 
     // ********************************************************************* */
 

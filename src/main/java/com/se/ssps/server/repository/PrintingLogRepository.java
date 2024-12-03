@@ -13,6 +13,7 @@ import com.se.ssps.server.entity.PageSize;
 //import java.util.Optional;
 
 import com.se.ssps.server.entity.PrintingLog;
+//import com.se.ssps.server.entity.configuration.FileType;
 
 @Repository
 public interface PrintingLogRepository extends MongoRepository<PrintingLog, String> {
@@ -57,6 +58,14 @@ public interface PrintingLogRepository extends MongoRepository<PrintingLog, Stri
             "{ $group: { _id: null, totalProfit: { $sum: '$printingCost' } } }"
     })
     Double calculateTotalProfitByPrinter(LocalDateTime fromDate, LocalDateTime toDate, String printerId);
+
+
+    @Aggregation(pipeline = {
+            "{ $match: { startDate: { $gte: ?0, $lte: ?1 } } }",
+            "{ $group: { _id: '$pageSize', totalPages: { $sum: { $multiply: ['$numOfPages', '$numOfCopies'] } } } }",
+            "{ $project: { pageSize: '$_id', totalPages: 1, _id: 0 } }"
+    })
+    List<PrintingLog> calculateTotalPagesByType(LocalDateTime fromDate, LocalDateTime toDate);
 
 }
 
