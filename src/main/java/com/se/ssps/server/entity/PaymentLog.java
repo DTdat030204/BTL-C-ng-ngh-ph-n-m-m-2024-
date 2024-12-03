@@ -2,6 +2,9 @@ package com.se.ssps.server.entity;
 
 import java.time.LocalDateTime;
 
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.se.ssps.server.entity.user.Student;
 
@@ -30,6 +33,9 @@ public class PaymentLog {
     private String paymentMethod;
 
     private Integer unitPrice;
+
+    @Enumerated(EnumType.STRING)
+    private PageSize pageSize; // Loại giấy: A3 hoặc A4
 
     public PaymentLog(Student student, int numOfPages, LocalDateTime payDate, String paymentMethod, Integer unitPrice) {
         this.student = student;

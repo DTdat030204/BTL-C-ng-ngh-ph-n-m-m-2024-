@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,7 @@ import com.se.ssps.server.repository.RoomRepository;
 //import com.se.ssps.server.repository.user.UserRepository;
 
 import com.se.ssps.server.stat.ChartValue;
+//import java.util.Optional;
 
 // import org.springframework.beans.factory.annotation.Autowired;
 // import org.springframework.data.mongodb.core.MongoTemplate;
@@ -63,6 +65,9 @@ import java.util.Date;
 public class AdminServiceImpl implements AdminService {
     // Khai báo các repository
     // @Autowired
+    @Autowired
+    PageUnitRepo pageUnitRepo;
+
     @Autowired
     MaxSizeRepository maxFileSizeRepo;
 
@@ -667,19 +672,35 @@ public class AdminServiceImpl implements AdminService {
     // return pageUnitPriceRepo.save(existing);
     // }
     // }
+    // @Override
+    // public PageUnitPrice setPagePrice(Integer pagePrice) {
+    //     PageUnitPrice existing = pageUnitPriceRepo.findAll().stream().findFirst().orElse(null);
+
+    //     if (existing == null) {
+    //         // Tạo đối tượng mới với id là "1" (hoặc id tùy ý)
+    //         PageUnitPrice newPagePrice = new PageUnitPrice("1", pagePrice);
+    //         return pageUnitPriceRepo.save(newPagePrice);
+    //     } else {
+    //         existing.setValue(pagePrice); // Sử dụng phương thức setter
+    //         return pageUnitPriceRepo.save(existing);
+    //     }
+    // }
     @Override
-    public PageUnitPrice setPagePrice(Integer pagePrice) {
-        PageUnitPrice existing = pageUnitPriceRepo.findAll().stream().findFirst().orElse(null);
+    public PageUnitPrice setPagePrice(Integer pagePrice, String pageSize) {
+        // Kiểm tra xem đã có loại giấy đó chưa
+        PageUnitPrice existing = pageUnitPriceRepo.findByPageSize(pageSize); // Bạn cần thêm phương thức này trong repository
 
         if (existing == null) {
-            // Tạo đối tượng mới với id là "1" (hoặc id tùy ý)
-            PageUnitPrice newPagePrice = new PageUnitPrice("1", pagePrice);
+            // Tạo đối tượng mới với loại giấy và giá tiền
+            PageUnitPrice newPagePrice = new PageUnitPrice(UUID.randomUUID().toString(), pagePrice, pageSize); // Sử dụng UUID để tạo id duy nhất
             return pageUnitPriceRepo.save(newPagePrice);
         } else {
-            existing.setValue(pagePrice); // Sử dụng phương thức setter
+            // Nếu đã có loại giấy đó, cập nhật giá tiền
+            existing.setValue(pagePrice);
             return pageUnitPriceRepo.save(existing);
         }
     }
+
     // *************************************************** */
 
     // =====================================================================================
@@ -802,7 +823,7 @@ public class AdminServiceImpl implements AdminService {
         LocalDateTime toDate = to.atEndOfMonth().atTime(23, 59, 59);
 
         Double totalRequests = printingLogRepository.sumOfRequest(fromDate, toDate).doubleValue();
-        List<PageSize> pageSizes = List.of(PageSize.A4, PageSize.A3, PageSize.A2, PageSize.A1);
+        List<PageSize> pageSizes = List.of(PageSize.A4, PageSize.A3);
 
         for (PageSize pageSize : pageSizes) {
             Double count = printingLogRepository.countPageSize(pageSize, fromDate, toDate).doubleValue();
@@ -837,38 +858,136 @@ public class AdminServiceImpl implements AdminService {
     // }
     // return returnList;
     // }
+    // @Override
+    // public List<ChartValue> profitByMonth(YearMonth from, YearMonth to) {
+    //     ArrayList<ChartValue> returnList = new ArrayList<>();
+    //     while (!from.isAfter(to)) {
+    //         // Tính toán ngày bắt đầu và kết thúc của tháng
+    //         LocalDateTime fromDate = from.atDay(1).atStartOfDay();
+    //         LocalDateTime toDate = from.atEndOfMonth().atTime(23, 59, 59);
+
+    //         // Lấy số trang in từ paymentLogRepository
+    //         Integer pageNum = paymentLogRepository.countPageNums(fromDate, toDate);
+    //         if (pageNum == null) {
+    //             pageNum = 0;
+    //         }
+
+    //         // Lấy danh sách tất cả các PageUnitPrice
+    //         List<PageUnitPrice> pageUnitPriceList = pageUnitPriceRepo.findAll();
+    //         // Lấy giá trị của PageUnitPrice đầu tiên (hoặc mặc định nếu không có)
+    //         PageUnitPrice firstPageUnitPrice = pageUnitPriceList.isEmpty() ? new PageUnitPrice()
+    //                 : pageUnitPriceList.get(0);
+
+    //         // Tính lợi nhuận
+    //         Double profit = pageNum * firstPageUnitPrice.getPrice().doubleValue(); // Chuyển Integer thành Double
+
+    //         // Tạo đối tượng ChartValue và thêm vào danh sách kết quả
+    //         ChartValue value = new ChartValue(from.getMonth().toString() + from.getYear(), profit);
+    //         returnList.add(value);
+
+    //         // Tiến tới tháng tiếp theo
+    //         from = from.plusMonths(1);
+    //     }
+    //     return returnList;
+    // }
     @Override
     public List<ChartValue> profitByMonth(YearMonth from, YearMonth to) {
         ArrayList<ChartValue> returnList = new ArrayList<>();
         while (!from.isAfter(to)) {
-            // Tính toán ngày bắt đầu và kết thúc của tháng
+            // Xác định khoảng thời gian bắt đầu và kết thúc trong tháng
             LocalDateTime fromDate = from.atDay(1).atStartOfDay();
             LocalDateTime toDate = from.atEndOfMonth().atTime(23, 59, 59);
 
-            // Lấy số trang in từ paymentLogRepository
-            Integer pageNum = paymentLogRepository.countPageNums(fromDate, toDate);
-            if (pageNum == null) {
-                pageNum = 0;
+            // Sử dụng truy vấn trong repository để tính tổng `printingCost` theo tháng
+            Double monthlyProfit = printingLogRepository.calculateTotalProfit(fromDate, toDate);
+            if (monthlyProfit == null) {
+                monthlyProfit = 0.0; // Nếu không có log in nào, lợi nhuận bằng 0
             }
 
-            // Lấy danh sách tất cả các PageUnitPrice
-            List<PageUnitPrice> pageUnitPriceList = pageUnitPriceRepo.findAll();
-            // Lấy giá trị của PageUnitPrice đầu tiên (hoặc mặc định nếu không có)
-            PageUnitPrice firstPageUnitPrice = pageUnitPriceList.isEmpty() ? new PageUnitPrice()
-                    : pageUnitPriceList.get(0);
-
-            // Tính lợi nhuận
-            Double profit = pageNum * firstPageUnitPrice.getPrice().doubleValue(); // Chuyển Integer thành Double
-
-            // Tạo đối tượng ChartValue và thêm vào danh sách kết quả
-            ChartValue value = new ChartValue(from.getMonth().toString() + from.getYear(), profit);
+            // Tạo đối tượng ChartValue
+            String label = from.getMonth().toString() + " " + from.getYear();
+            ChartValue value = new ChartValue(label, monthlyProfit);
             returnList.add(value);
 
-            // Tiến tới tháng tiếp theo
+            // Chuyển sang tháng tiếp theo
             from = from.plusMonths(1);
         }
         return returnList;
     }
+    
+    
+    // @Override
+    // public List<ChartValue> profitByMonth(YearMonth from, YearMonth to) {
+    //     ArrayList<ChartValue> returnList = new ArrayList<>();
+    //     while (!from.isAfter(to)) {
+    //         // Xác định khoảng thời gian bắt đầu và kết thúc trong tháng
+    //         LocalDateTime fromDate = from.atDay(1).atStartOfDay();
+    //         LocalDateTime toDate = from.atEndOfMonth().atTime(23, 59, 59);
+
+    //         // Lấy danh sách các PaymentLog trong khoảng thời gian
+    //         List<PrintingLog> printingLog = printingLogRepository.findByDateRange(fromDate, toDate);
+
+    //         double profit = 0.0; // Tổng lợi nhuận
+
+    //         for (PrintingLog log : printingLog) {
+    //             // Số trang cần in
+    //             int requiredPages = log.getNumOfPages() * log.getNumOfCopies();
+
+    //             // Tìm giá giấy theo kích thước (A3 hoặc A4)
+    //             PageUnitPrice pageUnitPrice = pageUnitRepo.findByPageSize(log.getPageSize().toString());
+    //             if (pageUnitPrice == null) {
+    //                 throw new RuntimeException("Không tìm thấy giá cho kích thước giấy: " + log.getPageSize());
+    //             }
+
+    //             // Tính số tiền dựa trên trạng thái in hai mặt hay một mặt
+    //             double amountToAdd;
+    //             if (log.isDoubleSided()) {
+    //                 amountToAdd = requiredPages * pageUnitPrice.getValue();
+    //             } else {
+    //                 amountToAdd = requiredPages * (pageUnitPrice.getValue() / 2.0);
+    //             }
+
+    //             // Cộng vào tổng lợi nhuận
+    //             profit += amountToAdd;
+    //         }
+
+    //         // Tạo đối tượng ChartValue
+    //         String label = from.getMonth().toString() + " " + from.getYear();
+    //         ChartValue value = new ChartValue(label, profit);
+    //         returnList.add(value);
+
+    //         // Chuyển sang tháng tiếp theo
+    //         from = from.plusMonths(1);
+    //     }
+    //     return returnList;
+    // }
+
+    @Override
+    public List<ChartValue> profitByMonthByPrinter(YearMonth from, YearMonth to, String printerId) {
+        ArrayList<ChartValue> returnList = new ArrayList<>();
+        while (!from.isAfter(to)) {
+            // Xác định khoảng thời gian bắt đầu và kết thúc trong tháng
+            LocalDateTime fromDate = from.atDay(1).atStartOfDay();
+            LocalDateTime toDate = from.atEndOfMonth().atTime(23, 59, 59);
+
+            // Sử dụng truy vấn trong repository để tính tổng `printingCost` theo tháng cho
+            // printer
+            Double monthlyProfit = printingLogRepository.calculateTotalProfitByPrinter(fromDate, toDate, printerId);
+            if (monthlyProfit == null) {
+                monthlyProfit = 0.0; // Nếu không có log in nào, lợi nhuận bằng 0
+            } // Giá trị mặc định nếu Optional rỗng
+
+            // Tạo đối tượng ChartValue
+            String label = from.getMonth().toString() + " " + from.getYear();
+            ChartValue value = new ChartValue(label, monthlyProfit);
+            returnList.add(value);
+
+            // Chuyển sang tháng tiếp theo
+            from = from.plusMonths(1);
+        }
+        return returnList;
+    }
+
     // ********************************************************************* */
 
     // @Override

@@ -64,87 +64,153 @@ public class StudentServiceImpl implements StudentService {
     }
 
     // @Override
-    // public void addPrintingLog(ArrayList<PrintingLog> printingLog, String printerID, String id) {
-    //     for (PrintingLog log : printingLog) {
-    //         // Tìm Student
-    //         Student student = studentRepository.findById(id)
-    //                 .orElseThrow(() -> new RuntimeException("Student not found"));
+    // public void addPrintingLog(ArrayList<PrintingLog> printingLog, String
+    // printerID, String id) {
+    // for (PrintingLog log : printingLog) {
+    // // Tìm Student
+    // Student student = studentRepository.findById(id)
+    // .orElseThrow(() -> new RuntimeException("Không tìm thấy học sinh"));
 
-    //         // Tìm Printer
-    //         Printer printer = printerRepository.findById(printerID)
-    //                 .orElseThrow(() -> new RuntimeException("Printer not found"));
+    // // Tìm Printer
+    // Printer printer = printerRepository.findById(printerID)
+    // .orElseThrow(() -> new RuntimeException("không tìm thấy máy in"));
 
-    //         // Lấy danh sách các file type hợp lệ
-    //         List<FileType> allowedFileTypes = fileTypeRepository.findAll();
-    //         List<String> allowedExtensions = allowedFileTypes.stream()
-    //                 .map(FileType::getFileTypeName)
-    //                 .toList();
+    // // Lấy danh sách các file type hợp lệ
+    // List<FileType> allowedFileTypes = fileTypeRepository.findAll();
+    // List<String> allowedExtensions = allowedFileTypes.stream()
+    // .map(FileType::getFileTypeName)
+    // .toList();
 
-    //         // Kiểm tra tên file
-    //         String fileName = log.getFileName();
-    //         if (fileName == null || fileName.isEmpty()) {
-    //             throw new RuntimeException("File name cannot be empty.");
-    //         }
-
-    //         // Xử lý phần mở rộng file
-    //         int lastDotIndex = fileName.lastIndexOf('.');
-    //         if (lastDotIndex == -1 || lastDotIndex == fileName.length() - 1) {
-    //             throw new RuntimeException("File '" + fileName + "' has no valid extension.");
-    //         }
-
-    //         // Lấy phần mở rộng file
-    //         String fileExtension = fileName.substring(lastDotIndex + 1);
-
-    //         // Kiểm tra phần mở rộng có hợp lệ không
-    //         if (!allowedExtensions.contains(fileExtension)) {
-    //             throw new RuntimeException("File type '" + fileExtension + "' is not allowed for printing.");
-    //         }
-
-    //         // Tính toán số trang và kiểm tra balance
-    //         int requiredPages = log.getNumOfPages() * log.getNumOfCopies();
-    //         if (student.getBalance() < requiredPages) {
-    //             throw new RuntimeException("Insufficient balance. Please purchase more pages.");
-    //         }
-
-    //         // Cập nhật balance của Student
-    //         int remainingBalance = student.getBalance() - requiredPages;
-    //         student.setBalance(remainingBalance);
-
-    //         // Lưu log vào database
-    //         printingLogRepository.save(log);
-
-    //         // Lưu lại thông tin Student để cập nhật danh sách printingLogs
-    //         student.getPrintingLogs().add(log);
-    //         studentRepository.save(student);
-
-    //         // Cập nhật thông tin log
-    //         log.setStartDate(LocalDateTime.now());
-    //         log.setEndDate(LocalDateTime.now().plusSeconds(requiredPages * 5));
-    //         log.setStudent(student);
-    //         log.setPrinter(printer);
-
-    //         // Lưu log vào database
-    //         printingLogRepository.save(log);
-
-    //         // Cập nhật thông tin Printer
-    //         printer.setStatus(false); // Chuyển trạng thái sang "đang sử dụng"
-    //         printer.setInkAmount(printer.getInkAmount() - requiredPages / 20);
-    //         printer.setPageAmount(printer.getPageAmount() - requiredPages);
-
-    //         printerHelper.schedulePrinterStatusReset(printerID);
-
-    //         if (printer.getInkAmount() <= 0)
-    //             printer.setInkAmount(100);
-    //         if (printer.getPageAmount() <= 0)
-    //             printer.setPageAmount(10000);
-
-    //         // Thêm log vào danh sách
-    //         printer.getPrintingLogs().add(log);
-
-    //         // Lưu lại thông tin Printer
-    //         printerRepository.save(printer);
-    //     }
+    // // Kiểm tra tên file
+    // String fileName = log.getFileName();
+    // if (fileName == null || fileName.isEmpty()) {
+    // throw new RuntimeException("File name không được để trống.");
     // }
+
+    // // Xử lý phần mở rộng file
+    // int lastDotIndex = fileName.lastIndexOf('.');
+    // if (lastDotIndex == -1 || lastDotIndex == fileName.length() - 1) {
+    // throw new RuntimeException("File '" + fileName + "' sai định dạng.");
+    // }
+
+    // // Lấy phần mở rộng file
+    // String fileExtension = fileName.substring(lastDotIndex + 1);
+
+    // // Kiểm tra phần mở rộng có hợp lệ không
+    // if (!allowedExtensions.contains(fileExtension)) {
+    // throw new RuntimeException("File type '" + fileExtension + "' không được cho
+    // phép in.");
+    // }
+
+    // // **Kiểm tra kích thước file**
+    // double fileSize = log.getSize();
+    // MaxFileSize maxFileSize = maxSizeRepository.findAll().stream().findFirst()
+    // .orElseThrow(() -> new RuntimeException("Max file size configuration not
+    // found."));
+
+    // if (fileSize > maxFileSize.getValue()) {
+    // throw new RuntimeException(
+    // "File size exceeds the maximum allowed limit (" + maxFileSize.getValue() + "
+    // MB).");
+    // }
+
+    // // Kiểm tra PageSize
+    // PageSize pageSize = log.getPageSize();
+    // if (pageSize == null) {
+    // throw new RuntimeException("PageSize không được để trống.");
+    // }
+
+    // // Tính số trang cần thiết cho từng loại giấy (A3 hoặc A4)
+    // int requiredPages = log.getNumOfPages() * log.getNumOfCopies();
+
+    // // **Tính giá dịch vụ in**
+    // double amountToAdd = 0.0; // Số tiền cần cộng
+    // if (pageSize == PageSize.A3) {
+    // double pageCost = printer.getA3PagePrice() / 2.0; // Giá 1/2 tờ A3
+    // if (log.isDoubleSided()) {
+    // pageCost = printer.getA3PagePrice(); // Giá tờ A3 nếu in hai mặt
+    // }
+    // amountToAdd = requiredPages * pageCost;
+    // } else if (pageSize == PageSize.A4) {
+    // double pageCost = printer.getA4PagePrice() / 2.0; // Giá 1/2 tờ A4
+    // if (log.isDoubleSided()) {
+    // pageCost = printer.getA4PagePrice(); // Giá tờ A4 nếu in hai mặt
+    // }
+    // amountToAdd = requiredPages * pageCost;
+    // }
+
+    // // **Lưu giá in vào log**
+    // log.setPrintingCost(amountToAdd);
+
+    // // Cập nhật số tiền cần trả của sinh viên
+    // student.setOutstandingAmount(student.getOutstandingAmount() + amountToAdd);
+
+    // // // Tính số trang cần thiết cho từng loại giấy (A3 hoặc A4)
+    // // int requiredPages = log.getNumOfPages() * log.getNumOfCopies();
+
+    // // **Kiểm tra số lượng giấy**
+    // int requiredA3Pages = 0;
+    // int requiredA4Pages = 0;
+
+    // // Kiểm tra số lượng giấy A3 và A4 cần thiết
+    // if (pageSize == PageSize.A3) {
+    // requiredA3Pages = requiredPages;
+    // } else if (pageSize == PageSize.A4) {
+    // requiredA4Pages = requiredPages;
+    // }
+
+    // // Kiểm tra xem học sinh có đủ giấy A3 và A4 hay không
+    // if (student.getNumA3Pages() < requiredA3Pages) {
+    // throw new RuntimeException("Không đủ giấy A3 để in.");
+    // }
+
+    // if (student.getNumA4Pages() < requiredA4Pages) {
+    // throw new RuntimeException("Không đủ giấy A4 để in.");
+    // }
+
+    // // Cập nhật số lượng giấy còn lại
+    // student.setNumA3Pages(student.getNumA3Pages() - requiredA3Pages);
+    // student.setNumA4Pages(student.getNumA4Pages() - requiredA4Pages);
+
+    // // // Lưu thông tin Student
+    // // studentRepository.save(student);
+
+    // // Lưu log vào database
+    // printingLogRepository.save(log);
+
+    // // Cập nhật thông tin log
+    // log.setStartDate(LocalDateTime.now());
+    // log.setEndDate(LocalDateTime.now().plusSeconds(requiredPages * 5)); // Giả sử
+    // mỗi trang mất 5 giây
+    // log.setStudent(student);
+    // log.setPrinter(printer);
+    // log.setNumOfPages(requiredPages); // Cập nhật số trang
+
+    // // Lưu lại log vào database
+    // printingLogRepository.save(log);
+
+    // // Cập nhật thông tin Printer
+    // printer.setStatus(false); // Chuyển trạng thái máy in sang "đang sử dụng"
+    // printer.setInkAmount(printer.getInkAmount() - requiredPages / 20);
+    // printer.setPageAmount(printer.getPageAmount() - requiredPages);
+
+    // printerHelper.schedulePrinterStatusReset(printerID);
+
+    // if (printer.getInkAmount() <= 0)
+    // printer.setInkAmount(100);
+    // if (printer.getPageAmount() <= 0)
+    // printer.setPageAmount(10000);
+
+    // // Thêm log vào danh sách của máy in
+    // printer.getPrintingLogs().add(log);
+    // student.getPrintingLogs().add(log);
+
+    // // Lưu lại thông tin máy in
+    // printerRepository.save(printer);
+    // studentRepository.save(student);
+    // }
+    // }
+
     @Override
     public void addPrintingLog(ArrayList<PrintingLog> printingLog, String printerID, String id) {
         for (PrintingLog log : printingLog) {
@@ -171,7 +237,7 @@ public class StudentServiceImpl implements StudentService {
             // Xử lý phần mở rộng file
             int lastDotIndex = fileName.lastIndexOf('.');
             if (lastDotIndex == -1 || lastDotIndex == fileName.length() - 1) {
-                throw new RuntimeException("File ' " + fileName + "' sai định dạng.");
+                throw new RuntimeException("File '" + fileName + "' sai định dạng.");
             }
 
             // Lấy phần mở rộng file
@@ -198,48 +264,63 @@ public class StudentServiceImpl implements StudentService {
                 throw new RuntimeException("PageSize không được để trống.");
             }
 
-            // Xác định hệ số nhân dựa vào PageSize
-            double scale;
-            switch (pageSize) {
-                case A1 -> scale = 8.0;
-                case A2 -> scale = 4.0;
-                case A3 -> scale = 2.0;
-                case A4 -> scale = 1.0;
-                default -> throw new RuntimeException("Kích thước giấy không hợp lệ.");
-            }
-            // Tính số trang tương đương A4
-            int equivalentPages = (int) (log.getNumOfPages() * scale);
-
-            // Tính số trang cần thiết
-            int requiredPages = equivalentPages * log.getNumOfCopies();
-            //int requiredPages = log.getNumOfPages() * log.getNumOfCopies();
-            if (student.getBalance() < requiredPages) {
-                throw new RuntimeException("Số trang trong tài khoản không đủ. Hãy mua thêm giấy.");
+            double amountToAdd = 0.0; // Số tiền cần cộng
+            // Tính số trang cần thiết cho từng loại giấy (A3 hoặc A4)
+            int requiredPages = log.getNumOfPages() * log.getNumOfCopies();
+            PageUnitPrice pageUnitPrice = pageUnitRepo.findByPageSize(pageSize.toString());
+            if (log.isDoubleSided()) {
+                amountToAdd = requiredPages * pageUnitPrice.getValue();
+            } else {
+                amountToAdd = requiredPages * pageUnitPrice.getValue() / 2;
             }
 
-            // Cập nhật balance của Student
-            int remainingBalance = student.getBalance() - requiredPages;
-            student.setBalance(remainingBalance);
+            // **Lưu giá in vào log**
+            log.setPrintingCost(amountToAdd);
+
+            // Cập nhật số tiền cần trả của sinh viên
+            student.setOutstandingAmount(student.getOutstandingAmount() + amountToAdd);
+            // // Cập nhật số tiền mà máy in nhận được
+            // printer.setProfit(printer.getProfit() + amountToAdd);
+
+            // **Kiểm tra số lượng giấy**
+            int requiredA3Pages = 0;
+            int requiredA4Pages = 0;
+
+            // Kiểm tra số lượng giấy A3 và A4 cần thiết
+            if (pageSize == PageSize.A3) {
+                requiredA3Pages = requiredPages;
+            } else if (pageSize == PageSize.A4) {
+                requiredA4Pages = requiredPages;
+            }
+
+            // Kiểm tra xem học sinh có đủ giấy A3 và A4 hay không
+            if (student.getNumA3Pages() < requiredA3Pages) {
+                throw new RuntimeException("Không đủ giấy A3 để in.");
+            }
+
+            if (student.getNumA4Pages() < requiredA4Pages) {
+                throw new RuntimeException("Không đủ giấy A4 để in.");
+            }
+
+            // Cập nhật số lượng giấy còn lại
+            student.setNumA3Pages(student.getNumA3Pages() - requiredA3Pages);
+            student.setNumA4Pages(student.getNumA4Pages() - requiredA4Pages);
 
             // Lưu log vào database
             printingLogRepository.save(log);
-
-            // Lưu lại thông tin Student để cập nhật danh sách printingLogs
-            student.getPrintingLogs().add(log);
-            studentRepository.save(student);
 
             // Cập nhật thông tin log
             log.setStartDate(LocalDateTime.now());
-            log.setEndDate(LocalDateTime.now().plusSeconds(requiredPages * 5));
+            log.setEndDate(LocalDateTime.now().plusSeconds(requiredPages * 5)); // Giả sử mỗi trang mất 5 giây
             log.setStudent(student);
             log.setPrinter(printer);
-            log.setNumOfPages(equivalentPages); // Cập nhật số trang tương đương A4
+            log.setNumOfPages(requiredPages); // Cập nhật số trang
 
-            // Lưu log vào database
+            // Lưu lại log vào database
             printingLogRepository.save(log);
 
             // Cập nhật thông tin Printer
-            printer.setStatus(false); // Chuyển trạng thái sang "đang sử dụng"
+            printer.setStatus(false); // Chuyển trạng thái máy in sang "đang sử dụng"
             printer.setInkAmount(printer.getInkAmount() - requiredPages / 20);
             printer.setPageAmount(printer.getPageAmount() - requiredPages);
 
@@ -250,177 +331,15 @@ public class StudentServiceImpl implements StudentService {
             if (printer.getPageAmount() <= 0)
                 printer.setPageAmount(10000);
 
-            // Thêm log vào danh sách
+            // Thêm log vào danh sách của máy in
             printer.getPrintingLogs().add(log);
+            student.getPrintingLogs().add(log);
 
-            // Lưu lại thông tin Printer
+            // Lưu lại thông tin máy in
             printerRepository.save(printer);
+            studentRepository.save(student);
         }
     }
-    // @Override
-    // public void addPrintingLog(ArrayList<PrintingLog> printingLog, String printerID, String id) {
-    //     for (PrintingLog log : printingLog) {
-    //         // Tìm Student
-    //         Student student = studentRepository.findById(id)
-    //                 .orElseThrow(() -> new RuntimeException("Không tìm thấy học sinh"));
-
-    //         // Tìm Printer
-    //         Printer printer = printerRepository.findById(printerID)
-    //                 .orElseThrow(() -> new RuntimeException("không tìm thấy máy in"));
-
-    //         // Kiểm tra PageSize
-    //         PageSize pageSize = log.getPageSize();
-    //         if (pageSize == null) {
-    //             throw new RuntimeException("PageSize không được để trống.");
-    //         }
-
-    //         // Xác định hệ số nhân dựa vào PageSize
-    //         double scale;
-    //         switch (pageSize) {
-    //             case A1 -> scale = 8.0;
-    //             case A2 -> scale = 4.0;
-    //             case A3 -> scale = 2.0;
-    //             case A4 -> scale = 1.0;
-    //             default -> throw new RuntimeException("Kích thước giấy không hợp lệ.");
-    //         }
-
-    //         // Tính số trang tương đương A4
-    //         int equivalentPages = (int) (log.getNumOfPages() * scale);
-
-    //         // Tính số trang cần thiết
-    //         int requiredPages = equivalentPages * log.getNumOfCopies();
-
-    //         // Kiểm tra balance của Student
-    //         if (student.getBalance() < requiredPages) {
-    //             throw new RuntimeException("Insufficient balance. Please purchase more pages.");
-    //         }
-
-    //         // Trừ số trang từ balance của Student
-    //         int remainingBalance = student.getBalance() - requiredPages;
-    //         student.setBalance(remainingBalance);
-
-    //         // Cập nhật thông tin log
-    //         log.setStartDate(LocalDateTime.now());
-    //         log.setEndDate(LocalDateTime.now().plusSeconds(requiredPages * 5));
-    //         log.setStudent(student);
-    //         log.setPrinter(printer);
-    //         log.setNumOfPages(equivalentPages); // Cập nhật số trang tương đương A4
-
-    //         // Lưu log vào database
-    //         printingLogRepository.save(log);
-
-    //         // Cập nhật thông tin Printer
-    //         printer.setStatus(false); // Chuyển trạng thái sang "đang sử dụng"
-    //         printer.setInkAmount(printer.getInkAmount() - requiredPages / 20);
-    //         printer.setPageAmount(printer.getPageAmount() - requiredPages);
-
-    //         // Đặt lại trạng thái máy in sau khi in xong
-    //         printerHelper.schedulePrinterStatusReset(printerID);
-
-    //         if (printer.getInkAmount() <= 0)
-    //             printer.setInkAmount(100);
-    //         if (printer.getPageAmount() <= 0)
-    //             printer.setPageAmount(10000);
-
-    //         // Thêm log vào danh sách của Printer
-    //         printer.getPrintingLogs().add(log);
-
-    //         // Lưu lại Printer
-    //         printerRepository.save(printer);
-
-    //         // Lưu lại Student
-    //         student.getPrintingLogs().add(log);
-    //         studentRepository.save(student);
-    //     }
-    // }
-
-    
-    
-    
-    // @Override
-    // public void addPrintingLog(ArrayList<PrintingLog> printingLog, String printerID, String id) {
-    //     for (PrintingLog log : printingLog) {
-    //         // Tìm Student
-    //         Student student = studentRepository.findById(id)
-    //                 .orElseThrow(() -> new RuntimeException("Student not found"));
-
-    //         // Tìm Printer
-    //         Printer printer = printerRepository.findById(printerID)
-    //                 .orElseThrow(() -> new RuntimeException("Printer not found"));
-
-    //         // Cập nhật balance của Student
-    //         int remainingPages = student.getBalance() - log.getNumOfPages() * log.getNumOfCopies();
-    //         student.setBalance(remainingPages);
-
-    //         // Lưu log vào database
-    //         printingLogRepository.save(log);
-
-    //         // Lưu lại thông tin Student để cập nhật danh sách printingLogs
-    //         student.getPrintingLogs().add(log);
-
-    //         studentRepository.save(student);
-
-    //         // Cập nhật thông tin log
-    //         log.setStartDate(LocalDateTime.now());
-    //         log.setEndDate(LocalDateTime.now().plusSeconds(log.getNumOfPages() * log.getNumOfCopies() * 5));
-    //         log.setStudent(student);
-    //         log.setPrinter(printer);
-
-    //         // Lưu log vào database
-    //         printingLogRepository.save(log);
-
-    //         // Cập nhật thông tin Printer
-    //         printer.setInkAmount(printer.getInkAmount() - log.getNumOfPages() * log.getNumOfCopies() / 20);
-    //         printer.setPageAmount(printer.getPageAmount() - log.getNumOfPages() * log.getNumOfCopies());
-
-    //         if (printer.getInkAmount() <= 0)
-    //             printer.setInkAmount(100);
-    //         if (printer.getPageAmount() <= 0)
-    //             printer.setPageAmount(10000);
-
-    //         // Thêm log vào danh sách
-    //         printer.getPrintingLogs().add(log);
-    //         // Lưu lại thông tin Printer
-    //         printerRepository.save(printer);
-    //     }
-
-    // }
-
-    // @Override
-    // public void addPrintingLog(ArrayList<PrintingLog> printingLog, String printerID, String id) {
-    //     for (PrintingLog log : printingLog) {
-    //         Student student = studentRepository.findById(id)
-    //                 .orElseThrow(() -> new RuntimeException("Student not found"));
-    //         Printer printer = printerRepository.findById(printerID.toString())
-    //                 .orElseThrow(() -> new RuntimeException("Printer not found"));
-
-    //         int remainingPages = student.getBalance() - log.getNumOfPages() * log.getNumOfCopies();
-    //         student.setBalance(remainingPages);
-    //         studentRepository.save(student);
-
-    //         log.setStartDate(LocalDateTime.now());
-    //         log.setEndDate(LocalDateTime.now().plusSeconds(log.getNumOfPages() * log.getNumOfCopies() * 5));
-    //         log.setStudent(student);
-    //         log.setPrinter(printer);
-    //         printingLogRepository.save(log);
-
-    //         printer.setInkAmount(printer.getInkAmount() - log.getNumOfPages() * log.getNumOfCopies() / 20);
-    //         printer.setPageAmount(printer.getPageAmount() - log.getNumOfPages() * log.getNumOfCopies());
-
-    //         if (printer.getInkAmount() <= 0)
-    //             printer.setInkAmount(100);
-    //         if (printer.getPageAmount() <= 0)
-    //             printer.setPageAmount(10000);
-
-    //             // Thêm log mới vào danh sách
-    //         printer.getPrintingLogs().addAll(printingLog);
-
-    //         // Lưu log vào database
-    //         printingLogRepository.saveAll(printingLog);
-
-    //         printerRepository.save(printer);
-    //     }
-    // }
 
     @Override
     public List<PrintingLog> listOfPrintingLogs(String studentId) {
@@ -429,16 +348,16 @@ public class StudentServiceImpl implements StudentService {
 
     // @Override
     // public void buyPage(PaymentLog paymentLog, String id) {
-    //     Student student = studentRepository.findById(id)
-    //             .orElseThrow(() -> new RuntimeException("Student not found"));
+    // Student student = studentRepository.findById(id)
+    // .orElseThrow(() -> new RuntimeException("Student not found"));
 
-    //     student.setBalance(student.getBalance() + paymentLog.getNumOfPages());
-    //     studentRepository.save(student);
+    // student.setBalance(student.getBalance() + paymentLog.getNumOfPages());
+    // studentRepository.save(student);
 
-    //     paymentLog.setStudent(student);
-    //     paymentLog.setUnitPrice(pageUnitRepo.getValue());
-    //     paymentLog.setPayDate(LocalDateTime.now());
-    //     paymentLogRepository.save(paymentLog);
+    // paymentLog.setStudent(student);
+    // paymentLog.setUnitPrice(pageUnitRepo.getValue());
+    // paymentLog.setPayDate(LocalDateTime.now());
+    // paymentLogRepository.save(paymentLog);
     // }
 
     @Override
@@ -469,53 +388,99 @@ public class StudentServiceImpl implements StudentService {
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
-        // Cập nhật số giấy dư của student
-        student.setBalance(student.getBalance() + paymentLog.getNumOfPages());
+        // Xác định loại giấy cần mua
+        PageSize pageSize = paymentLog.getPageSize();
+        if (pageSize == null) {
+            throw new RuntimeException("Loại giấy không được để trống.");
+        }
 
-        // Lấy giá trị price từ PageUnitPrice với id là "1"
-        PageUnitPrice pageUnitPrice = pageUnitRepo.findById("1")
-                .orElseThrow(() -> new RuntimeException("PageUnitPrice not found"));
+        PageUnitPrice pageUnitPrice = pageUnitRepo.findByPageSize(pageSize.toString());
+        if (pageUnitPrice == null) {
+            throw new RuntimeException("Không tìm thấy giá cho loại giấy " + pageSize);
+        }
 
         // Tính toán số tiền cần thanh toán
-        int amountToAdd = paymentLog.getNumOfPages() * pageUnitPrice.getValue();
+        int numOfPages = paymentLog.getNumOfPages();
+        int amountToAdd = numOfPages * pageUnitPrice.getValue();
+
+        // Cập nhật số lượng giấy của học sinh dựa trên loại giấy
+        if (pageSize == PageSize.A3) {
+            student.setNumA3Pages(student.getNumA3Pages() + numOfPages);
+        } else if (pageSize == PageSize.A4) {
+            student.setNumA4Pages(student.getNumA4Pages() + numOfPages);
+        }
+
+        // Cập nhật số dư cần thanh toán
         student.setOutstandingAmount(student.getOutstandingAmount() + amountToAdd);
 
-        // Thiết lập giá trị unitPrice cho paymentLog
+        // Thiết lập giá trị unitPrice và thông tin liên quan trong paymentLog
         paymentLog.setStudent(student);
         paymentLog.setUnitPrice(pageUnitPrice.getValue());
+        paymentLog.setPayDate(LocalDateTime.now());
 
         // Lưu paymentLog
-        paymentLog.setPayDate(LocalDateTime.now());
         paymentLogRepository.save(paymentLog);
 
         // Thêm PaymentLog vào danh sách paymentLogs của Student
         student.getPaymentLogs().add(paymentLog);
 
-        // Lưu lại thông tin Student để cập nhật danh sách paymentLogs
+        // Lưu lại thông tin Student
         studentRepository.save(student);
     }
 
-    //     @Override
+    // @Override
     // public void buyPage(PaymentLog paymentLog, String id) {
-    //     // Tìm kiếm thông tin student
-    //     Student student = studentRepository.findById(id)
-    //             .orElseThrow(() -> new RuntimeException("Student not found"));
+    // // Tìm kiếm thông tin student
+    // Student student = studentRepository.findById(id)
+    // .orElseThrow(() -> new RuntimeException("Student not found"));
 
-    //     // Cập nhật số dư của student
-    //     student.setBalance(student.getBalance() + paymentLog.getNumOfPages());
-    //     studentRepository.save(student);
+    // // Cập nhật số giấy dư của student
+    // student.setBalance(student.getBalance() + paymentLog.getNumOfPages());
 
-    //     // Lấy giá trị price từ PageUnitPrice với id là "1"
-    //     PageUnitPrice pageUnitPrice = pageUnitRepo.findById("1")
-    //             .orElseThrow(() -> new RuntimeException("PageUnitPrice not found"));
+    // // Lấy giá trị price từ PageUnitPrice với id là "1"
+    // PageUnitPrice pageUnitPrice = pageUnitRepo.findById("1")
+    // .orElseThrow(() -> new RuntimeException("PageUnitPrice not found"));
 
-    //     // Thiết lập giá trị unitPrice cho paymentLog
-    //     paymentLog.setStudent(student);
-    //     paymentLog.setUnitPrice(pageUnitPrice.getValue());
+    // // Tính toán số tiền cần thanh toán
+    // int amountToAdd = paymentLog.getNumOfPages() * pageUnitPrice.getValue();
+    // student.setOutstandingAmount(student.getOutstandingAmount() + amountToAdd);
 
-    //     // Lưu paymentLog
-    //     paymentLog.setPayDate(LocalDateTime.now());
-    //     paymentLogRepository.save(paymentLog);
+    // // Thiết lập giá trị unitPrice cho paymentLog
+    // paymentLog.setStudent(student);
+    // paymentLog.setUnitPrice(pageUnitPrice.getValue());
+
+    // // Lưu paymentLog
+    // paymentLog.setPayDate(LocalDateTime.now());
+    // paymentLogRepository.save(paymentLog);
+
+    // // Thêm PaymentLog vào danh sách paymentLogs của Student
+    // student.getPaymentLogs().add(paymentLog);
+
+    // // Lưu lại thông tin Student để cập nhật danh sách paymentLogs
+    // studentRepository.save(student);
+    // }
+
+    // @Override
+    // public void buyPage(PaymentLog paymentLog, String id) {
+    // // Tìm kiếm thông tin student
+    // Student student = studentRepository.findById(id)
+    // .orElseThrow(() -> new RuntimeException("Student not found"));
+
+    // // Cập nhật số dư của student
+    // student.setBalance(student.getBalance() + paymentLog.getNumOfPages());
+    // studentRepository.save(student);
+
+    // // Lấy giá trị price từ PageUnitPrice với id là "1"
+    // PageUnitPrice pageUnitPrice = pageUnitRepo.findById("1")
+    // .orElseThrow(() -> new RuntimeException("PageUnitPrice not found"));
+
+    // // Thiết lập giá trị unitPrice cho paymentLog
+    // paymentLog.setStudent(student);
+    // paymentLog.setUnitPrice(pageUnitPrice.getValue());
+
+    // // Lưu paymentLog
+    // paymentLog.setPayDate(LocalDateTime.now());
+    // paymentLogRepository.save(paymentLog);
     // }
 
     // Phương thức để cập nhật giá trị price của PageUnitPrice
@@ -540,7 +505,8 @@ public class StudentServiceImpl implements StudentService {
                 .map(printer -> new PrinterStudentDto(
                         printer.getStatus(),
                         printer.getId(),
-                        printer.getRoom() != null ? printer.getRoom().getRoomName() : "Unknown" // Kiểm tra null để tránh lỗi
+                        printer.getRoom() != null ? printer.getRoom().getRoomName() : "Unknown" // Kiểm tra null để
+                                                                                                // tránh lỗi
 
                 ))
                 .collect(Collectors.toList());
@@ -557,3 +523,387 @@ public class StudentServiceImpl implements StudentService {
     }
 
 }
+
+// @Override
+// public void addPrintingLog(ArrayList<PrintingLog> printingLog, String
+// printerID, String id) {
+// for (PrintingLog log : printingLog) {
+// // Tìm Student
+// Student student = studentRepository.findById(id)
+// .orElseThrow(() -> new RuntimeException("Student not found"));
+
+// // Tìm Printer
+// Printer printer = printerRepository.findById(printerID)
+// .orElseThrow(() -> new RuntimeException("Printer not found"));
+
+// // Lấy danh sách các file type hợp lệ
+// List<FileType> allowedFileTypes = fileTypeRepository.findAll();
+// List<String> allowedExtensions = allowedFileTypes.stream()
+// .map(FileType::getFileTypeName)
+// .toList();
+
+// // Kiểm tra tên file
+// String fileName = log.getFileName();
+// if (fileName == null || fileName.isEmpty()) {
+// throw new RuntimeException("File name cannot be empty.");
+// }
+
+// // Xử lý phần mở rộng file
+// int lastDotIndex = fileName.lastIndexOf('.');
+// if (lastDotIndex == -1 || lastDotIndex == fileName.length() - 1) {
+// throw new RuntimeException("File '" + fileName + "' has no valid
+// extension.");
+// }
+
+// // Lấy phần mở rộng file
+// String fileExtension = fileName.substring(lastDotIndex + 1);
+
+// // Kiểm tra phần mở rộng có hợp lệ không
+// if (!allowedExtensions.contains(fileExtension)) {
+// throw new RuntimeException("File type '" + fileExtension + "' is not allowed
+// for printing.");
+// }
+
+// // Tính toán số trang và kiểm tra balance
+// int requiredPages = log.getNumOfPages() * log.getNumOfCopies();
+// if (student.getBalance() < requiredPages) {
+// throw new RuntimeException("Insufficient balance. Please purchase more
+// pages.");
+// }
+
+// // Cập nhật balance của Student
+// int remainingBalance = student.getBalance() - requiredPages;
+// student.setBalance(remainingBalance);
+
+// // Lưu log vào database
+// printingLogRepository.save(log);
+
+// // Lưu lại thông tin Student để cập nhật danh sách printingLogs
+// student.getPrintingLogs().add(log);
+// studentRepository.save(student);
+
+// // Cập nhật thông tin log
+// log.setStartDate(LocalDateTime.now());
+// log.setEndDate(LocalDateTime.now().plusSeconds(requiredPages * 5));
+// log.setStudent(student);
+// log.setPrinter(printer);
+
+// // Lưu log vào database
+// printingLogRepository.save(log);
+
+// // Cập nhật thông tin Printer
+// printer.setStatus(false); // Chuyển trạng thái sang "đang sử dụng"
+// printer.setInkAmount(printer.getInkAmount() - requiredPages / 20);
+// printer.setPageAmount(printer.getPageAmount() - requiredPages);
+
+// printerHelper.schedulePrinterStatusReset(printerID);
+
+// if (printer.getInkAmount() <= 0)
+// printer.setInkAmount(100);
+// if (printer.getPageAmount() <= 0)
+// printer.setPageAmount(10000);
+
+// // Thêm log vào danh sách
+// printer.getPrintingLogs().add(log);
+
+// // Lưu lại thông tin Printer
+// printerRepository.save(printer);
+// }
+// }
+// @Override
+// public void addPrintingLog(ArrayList<PrintingLog> printingLog, String
+// printerID, String id) {
+// for (PrintingLog log : printingLog) {
+// // Tìm Student
+// Student student = studentRepository.findById(id)
+// .orElseThrow(() -> new RuntimeException("Không tìm thấy học sinh"));
+
+// // Tìm Printer
+// Printer printer = printerRepository.findById(printerID)
+// .orElseThrow(() -> new RuntimeException("không tìm thấy máy in"));
+
+// // Lấy danh sách các file type hợp lệ
+// List<FileType> allowedFileTypes = fileTypeRepository.findAll();
+// List<String> allowedExtensions = allowedFileTypes.stream()
+// .map(FileType::getFileTypeName)
+// .toList();
+
+// // Kiểm tra tên file
+// String fileName = log.getFileName();
+// if (fileName == null || fileName.isEmpty()) {
+// throw new RuntimeException("File name không được để trống.");
+// }
+
+// // Xử lý phần mở rộng file
+// int lastDotIndex = fileName.lastIndexOf('.');
+// if (lastDotIndex == -1 || lastDotIndex == fileName.length() - 1) {
+// throw new RuntimeException("File ' " + fileName + "' sai định dạng.");
+// }
+
+// // Lấy phần mở rộng file
+// String fileExtension = fileName.substring(lastDotIndex + 1);
+
+// // Kiểm tra phần mở rộng có hợp lệ không
+// if (!allowedExtensions.contains(fileExtension)) {
+// throw new RuntimeException("File type '" + fileExtension + "' không được cho
+// phép in.");
+// }
+
+// // **Kiểm tra kích thước file**
+// double fileSize = log.getSize();
+// MaxFileSize maxFileSize = maxSizeRepository.findAll().stream().findFirst()
+// .orElseThrow(() -> new RuntimeException("Max file size configuration not
+// found."));
+
+// if (fileSize > maxFileSize.getValue()) {
+// throw new RuntimeException(
+// "File size exceeds the maximum allowed limit (" + maxFileSize.getValue() + "
+// MB).");
+// }
+
+// // Kiểm tra PageSize
+// PageSize pageSize = log.getPageSize();
+// if (pageSize == null) {
+// throw new RuntimeException("PageSize không được để trống.");
+// }
+
+// // Xác định hệ số nhân dựa vào PageSize
+// double scale;
+// switch (pageSize) {
+// case A3 -> scale = 2.0;
+// case A4 -> scale = 1.0;
+// default -> throw new RuntimeException("Kích thước giấy không hợp lệ.");
+// }
+// // Tính số trang tương đương A4
+// int equivalentPages = (int) (log.getNumOfPages() * scale);
+
+// // Tính số trang cần thiết
+// int requiredPages = equivalentPages * log.getNumOfCopies();
+// //int requiredPages = log.getNumOfPages() * log.getNumOfCopies();
+// if (student.getBalance() < requiredPages) {
+// throw new RuntimeException("Số trang trong tài khoản không đủ. Hãy mua thêm
+// giấy.");
+// }
+
+// // Cập nhật balance của Student
+// int remainingBalance = student.getBalance() - requiredPages;
+// student.setBalance(remainingBalance);
+
+// // Lưu log vào database
+// printingLogRepository.save(log);
+
+// // Lưu lại thông tin Student để cập nhật danh sách printingLogs
+// student.getPrintingLogs().add(log);
+// studentRepository.save(student);
+
+// // Cập nhật thông tin log
+// log.setStartDate(LocalDateTime.now());
+// log.setEndDate(LocalDateTime.now().plusSeconds(requiredPages * 5));
+// log.setStudent(student);
+// log.setPrinter(printer);
+// log.setNumOfPages(equivalentPages); // Cập nhật số trang tương đương A4
+
+// // Lưu log vào database
+// printingLogRepository.save(log);
+
+// // Cập nhật thông tin Printer
+// printer.setStatus(false); // Chuyển trạng thái sang "đang sử dụng"
+// printer.setInkAmount(printer.getInkAmount() - requiredPages / 20);
+// printer.setPageAmount(printer.getPageAmount() - requiredPages);
+
+// printerHelper.schedulePrinterStatusReset(printerID);
+
+// if (printer.getInkAmount() <= 0)
+// printer.setInkAmount(100);
+// if (printer.getPageAmount() <= 0)
+// printer.setPageAmount(10000);
+
+// // Thêm log vào danh sách
+// printer.getPrintingLogs().add(log);
+
+// // Lưu lại thông tin Printer
+// printerRepository.save(printer);
+// }
+// }
+
+// @Override
+// public void addPrintingLog(ArrayList<PrintingLog> printingLog, String
+// printerID, String id) {
+// for (PrintingLog log : printingLog) {
+// // Tìm Student
+// Student student = studentRepository.findById(id)
+// .orElseThrow(() -> new RuntimeException("Không tìm thấy học sinh"));
+
+// // Tìm Printer
+// Printer printer = printerRepository.findById(printerID)
+// .orElseThrow(() -> new RuntimeException("không tìm thấy máy in"));
+
+// // Kiểm tra PageSize
+// PageSize pageSize = log.getPageSize();
+// if (pageSize == null) {
+// throw new RuntimeException("PageSize không được để trống.");
+// }
+
+// // Xác định hệ số nhân dựa vào PageSize
+// double scale;
+// switch (pageSize) {
+// case A1 -> scale = 8.0;
+// case A2 -> scale = 4.0;
+// case A3 -> scale = 2.0;
+// case A4 -> scale = 1.0;
+// default -> throw new RuntimeException("Kích thước giấy không hợp lệ.");
+// }
+
+// // Tính số trang tương đương A4
+// int equivalentPages = (int) (log.getNumOfPages() * scale);
+
+// // Tính số trang cần thiết
+// int requiredPages = equivalentPages * log.getNumOfCopies();
+
+// // Kiểm tra balance của Student
+// if (student.getBalance() < requiredPages) {
+// throw new RuntimeException("Insufficient balance. Please purchase more
+// pages.");
+// }
+
+// // Trừ số trang từ balance của Student
+// int remainingBalance = student.getBalance() - requiredPages;
+// student.setBalance(remainingBalance);
+
+// // Cập nhật thông tin log
+// log.setStartDate(LocalDateTime.now());
+// log.setEndDate(LocalDateTime.now().plusSeconds(requiredPages * 5));
+// log.setStudent(student);
+// log.setPrinter(printer);
+// log.setNumOfPages(equivalentPages); // Cập nhật số trang tương đương A4
+
+// // Lưu log vào database
+// printingLogRepository.save(log);
+
+// // Cập nhật thông tin Printer
+// printer.setStatus(false); // Chuyển trạng thái sang "đang sử dụng"
+// printer.setInkAmount(printer.getInkAmount() - requiredPages / 20);
+// printer.setPageAmount(printer.getPageAmount() - requiredPages);
+
+// // Đặt lại trạng thái máy in sau khi in xong
+// printerHelper.schedulePrinterStatusReset(printerID);
+
+// if (printer.getInkAmount() <= 0)
+// printer.setInkAmount(100);
+// if (printer.getPageAmount() <= 0)
+// printer.setPageAmount(10000);
+
+// // Thêm log vào danh sách của Printer
+// printer.getPrintingLogs().add(log);
+
+// // Lưu lại Printer
+// printerRepository.save(printer);
+
+// // Lưu lại Student
+// student.getPrintingLogs().add(log);
+// studentRepository.save(student);
+// }
+// }
+
+// @Override
+// public void addPrintingLog(ArrayList<PrintingLog> printingLog, String
+// printerID, String id) {
+// for (PrintingLog log : printingLog) {
+// // Tìm Student
+// Student student = studentRepository.findById(id)
+// .orElseThrow(() -> new RuntimeException("Student not found"));
+
+// // Tìm Printer
+// Printer printer = printerRepository.findById(printerID)
+// .orElseThrow(() -> new RuntimeException("Printer not found"));
+
+// // Cập nhật balance của Student
+// int remainingPages = student.getBalance() - log.getNumOfPages() *
+// log.getNumOfCopies();
+// student.setBalance(remainingPages);
+
+// // Lưu log vào database
+// printingLogRepository.save(log);
+
+// // Lưu lại thông tin Student để cập nhật danh sách printingLogs
+// student.getPrintingLogs().add(log);
+
+// studentRepository.save(student);
+
+// // Cập nhật thông tin log
+// log.setStartDate(LocalDateTime.now());
+// log.setEndDate(LocalDateTime.now().plusSeconds(log.getNumOfPages() *
+// log.getNumOfCopies() * 5));
+// log.setStudent(student);
+// log.setPrinter(printer);
+
+// // Lưu log vào database
+// printingLogRepository.save(log);
+
+// // Cập nhật thông tin Printer
+// printer.setInkAmount(printer.getInkAmount() - log.getNumOfPages() *
+// log.getNumOfCopies() / 20);
+// printer.setPageAmount(printer.getPageAmount() - log.getNumOfPages() *
+// log.getNumOfCopies());
+
+// if (printer.getInkAmount() <= 0)
+// printer.setInkAmount(100);
+// if (printer.getPageAmount() <= 0)
+// printer.setPageAmount(10000);
+
+// // Thêm log vào danh sách
+// printer.getPrintingLogs().add(log);
+// // Lưu lại thông tin Printer
+// printerRepository.save(printer);
+// }
+
+// }
+
+// @Override
+// public void addPrintingLog(ArrayList<PrintingLog> printingLog, String
+// printerID, String id) {
+// for (PrintingLog log : printingLog) {
+// Student student = studentRepository.findById(id)
+// .orElseThrow(() -> new RuntimeException("Student not found"));
+// Printer printer = printerRepository.findById(printerID.toString())
+// .orElseThrow(() -> new RuntimeException("Printer not found"));
+
+// int remainingPages = student.getBalance() - log.getNumOfPages() *
+// log.getNumOfCopies();
+// student.setBalance(remainingPages);
+// studentRepository.save(student);
+
+// log.setStartDate(LocalDateTime.now());
+// log.setEndDate(LocalDateTime.now().plusSeconds(log.getNumOfPages() *
+// log.getNumOfCopies() * 5));
+// log.setStudent(student);
+// log.setPrinter(printer);
+// printingLogRepository.save(log);
+
+// printer.setInkAmount(printer.getInkAmount() - log.getNumOfPages() *
+// log.getNumOfCopies() / 20);
+// printer.setPageAmount(printer.getPageAmount() - log.getNumOfPages() *
+// log.getNumOfCopies());
+
+// if (printer.getInkAmount() <= 0)
+// printer.setInkAmount(100);
+// if (printer.getPageAmount() <= 0)
+// printer.setPageAmount(10000);
+
+// // Thêm log mới vào danh sách
+// printer.getPrintingLogs().addAll(printingLog);
+
+// // Lưu log vào database
+// printingLogRepository.saveAll(printingLog);
+
+// printerRepository.save(printer);
+// }
+// }
+
+// Tìm giá tương ứng của loại giấy
+// // Tìm giá tương ứng của loại giấy
+// PageUnitPrice pageUnitPrice =
+// pageUnitRepo.findByPageSize(pageSize.toString()) // hoặc pageSize.name()
+// .orElseThrow(() -> new RuntimeException("Không tìm thấy giá cho loại giấy " +
+// pageSize));
+// Tìm giá tương ứng của loại giấy

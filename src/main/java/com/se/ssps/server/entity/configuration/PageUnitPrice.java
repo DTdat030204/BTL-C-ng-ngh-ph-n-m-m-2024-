@@ -16,6 +16,31 @@ package com.se.ssps.server.entity.configuration;
 //     private Integer price;
 // }package com.se.ssps.server.entity.configuration;
 
+// import org.springframework.data.annotation.Id;
+// import org.springframework.data.mongodb.core.mapping.Document;
+// import lombok.*;
+
+// @Setter
+// @Getter
+// @AllArgsConstructor
+// @NoArgsConstructor
+// @Document(collection = "page_unit_price") // Định nghĩa tài liệu MongoDB
+// public class PageUnitPrice {
+//     @Id
+//     private String id; // MongoDB sử dụng ObjectId, ánh xạ thành String
+
+//     private Integer price;
+
+//     // Thêm phương thức getValue
+//     public Integer getValue() {
+//         return this.price;
+//     }
+
+//     // Thêm phương thức setter cho price
+//     public void setValue(Integer price) {
+//         this.price = price;
+//     }
+// }
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.*;
@@ -29,20 +54,21 @@ public class PageUnitPrice {
     @Id
     private String id; // MongoDB sử dụng ObjectId, ánh xạ thành String
 
-    private Integer price;
+    private Integer price; // Giá của loại giấy
 
-    // Thêm phương thức getValue
+    private String pageSize; // Loại giấy (A3, A4)
+
+
+    // Thêm phương thức getter cho price
     public Integer getValue() {
         return this.price;
     }
-    
+
     // Thêm phương thức setter cho price
     public void setValue(Integer price) {
         this.price = price;
     }
 }
-
-
 
 /*
  * ### Đánh giá và giải thích lớp `PageUnitPrice`

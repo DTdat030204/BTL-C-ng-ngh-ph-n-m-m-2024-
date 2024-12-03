@@ -142,10 +142,31 @@ public class AdminController {
     // pageUnitPrice) {
     // return adminService.setPagePrice(pageUnitPrice);
     // }
+    // @PostMapping("/unit-price")
+    // public ResponseEntity<ApiResponse> setPageUnitPrice(@RequestParam(name = "price") Integer pageUnitPrice) {
+    //     try {
+    //         PageUnitPrice updatedPrice = adminService.setPagePrice(pageUnitPrice);
+    //         ApiResponse response = new ApiResponse(
+    //                 "success",
+    //                 "Giá đơn vị trang đã được cập nhật thành công",
+    //                 updatedPrice);
+    //         return ResponseEntity.ok(response);
+    //     } catch (Exception e) {
+    //         ApiResponse errorResponse = new ApiResponse(
+    //                 "error",
+    //                 "Không thể cập nhật giá đơn vị trang: " + e.getMessage());
+    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    //     }
+    // }
     @PostMapping("/unit-price")
-    public ResponseEntity<ApiResponse> setPageUnitPrice(@RequestParam(name = "price") Integer pageUnitPrice) {
+    public ResponseEntity<ApiResponse> setPageUnitPrice(
+            @RequestParam(name = "price") Integer pageUnitPrice,
+            @RequestParam(name = "pageSize") String pageSize) {
+
         try {
-            PageUnitPrice updatedPrice = adminService.setPagePrice(pageUnitPrice);
+            // Truyền fileSize vào phương thức setPagePrice 
+            PageUnitPrice updatedPrice = adminService.setPagePrice(pageUnitPrice, pageSize);
+
             ApiResponse response = new ApiResponse(
                     "success",
                     "Giá đơn vị trang đã được cập nhật thành công",
@@ -158,7 +179,10 @@ public class AdminController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
-
+    
+    
+    
+    
     // @PostMapping("/add-file-type")
     // public FileType addFileType(@RequestBody FileType newFileType) {
     // return adminService.addType(newFileType);
@@ -203,7 +227,6 @@ public class AdminController {
     // public List<PrinterDto> listOfPrinterWithStat() {
     // return adminService.findAllPrinterStat();
     // }
-
 
     // @PostMapping("/addprinter")
     // public Printer addPrinter(@RequestParam(name = "room-name") String roomName,
@@ -401,8 +424,19 @@ public class AdminController {
 
     // Thống kê số tiền bán trang in đối với từng tháng trong khoảng thời gian
     // (from, to)
-    @GetMapping("/statistics/profit-by-mont`h")
+    @GetMapping("/statistics/profit-by-month")
     public List<ChartValue> profitByMonth(@RequestParam String from, @RequestParam String to) {
         return adminService.profitByMonth(YearMonth.parse(from), YearMonth.parse(to));
     }
+
+    @GetMapping("/statistics/profit-by-month/printer")
+    public List<ChartValue> profitByMonthByPrinter(
+            @RequestParam String from,
+            @RequestParam String to,
+            @RequestParam String printerId) {
+        return adminService.profitByMonthByPrinter(YearMonth.parse(from), YearMonth.parse(to), printerId);
+    }
+    
+    
+
 }

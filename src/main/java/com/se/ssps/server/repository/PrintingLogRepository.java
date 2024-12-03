@@ -3,11 +3,15 @@ package com.se.ssps.server.repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.se.ssps.server.entity.PageSize;
+//import java.util.Optional;
+
 import com.se.ssps.server.entity.PrintingLog;
 
 @Repository
@@ -39,7 +43,21 @@ public interface PrintingLogRepository extends MongoRepository<PrintingLog, Stri
     @Query("{ 'startDate': { $gte: ?0 }, 'endDate': { $lte: ?1 } }")
     List<PrintingLog> findAllLogsBetween(LocalDateTime from, LocalDateTime to);
 
-    
+    @Query("SELECT p FROM PaymentLog p WHERE p.payDate >= :fromDate AND p.payDate <= :toDate")
+    List<PrintingLog> findByDateRange(@Param("fromDate") LocalDateTime fromDate, @Param("toDate") LocalDateTime toDate);
+
+    @Aggregation(pipeline = {
+            "{ $match: { startDate: { $gte: ?0, $lte: ?1 } } }",
+            "{ $group: { _id: null, totalProfit: { $sum: '$printingCost' } } }"
+    })
+    Double calculateTotalProfit(LocalDateTime fromDate, LocalDateTime toDate);
+
+    @Aggregation(pipeline = {
+            "{ $match: { startDate: { $gte: ?0, $lte: ?1 }, 'printer._id': ?2 } }",
+            "{ $group: { _id: null, totalProfit: { $sum: '$printingCost' } } }"
+    })
+    Double calculateTotalProfitByPrinter(LocalDateTime fromDate, LocalDateTime toDate, String printerId);
+
 }
 
 

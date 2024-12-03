@@ -68,8 +68,11 @@ public class Student {
     private String username;
     private String password;
     private Long studentNumber; // MSSV
-    private Integer balance = 0; // Số dư tài giấy, giá trị mặc định là 0
-    private Integer outstandingAmount = 0; // Số tiền cần thanh toán, khởi tạo bằng 0
+    // private Integer balance = 0; // Số dư tài giấy, giá trị mặc định là 0
+    private Integer numA3Pages = 0; // Số lượng giấy A3
+    private Integer numA4Pages = 0; // Số lượng giấy A4
+
+    private Double outstandingAmount = 0.0; // Số tiền cần thanh toán, khởi tạo bằng 0
     //private List<PrintingLog> printingLogs; // Nhúng trực tiếp log in tài liệu
     //private List<PaymentLog> paymentLogs; // Nhúng trực tiếp log thanh toán
     @DBRef

@@ -79,7 +79,8 @@ public interface AdminService {
 
     public MaxFileSize setMaxFileSize(double maxFileSize);
 
-    public PageUnitPrice setPagePrice(Integer pagePrice);
+    // public PageUnitPrice setPagePrice(Integer pagePrice);
+    public PageUnitPrice setPagePrice(Integer pagePrice, String fileSize);
 
     // =====================================================================================
     // ================================================================================
@@ -121,5 +122,7 @@ public interface AdminService {
     public Admin registerAdmin(Admin admin);
 
     public Admin findAdminByUsername(String username);
+
+    public List<ChartValue> profitByMonthByPrinter(YearMonth from, YearMonth to, String printerId);
 
 }

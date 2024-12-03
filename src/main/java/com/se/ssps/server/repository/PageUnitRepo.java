@@ -4,6 +4,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
+
 import com.se.ssps.server.entity.configuration.PageUnitPrice;
 
 @Repository
@@ -16,6 +17,10 @@ public interface PageUnitRepo extends MongoRepository<PageUnitPrice, String> {
     // Lấy giá trị price của PageUnitPrice có id = 1
     @Query("{ 'id': '1' }")
     public Integer getValue();
+    
+    PageUnitPrice findByPageSize(String pageSize); // Tìm PageUnitPrice theo fileSize
+    
+    
 }
 
 

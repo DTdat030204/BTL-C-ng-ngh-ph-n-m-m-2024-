@@ -41,6 +41,17 @@ public class PrintingLog {
 
     private Double squarePrinting;
 
+    private double printingCost; // Giá in của lần in này
+
+    // // Getter và Setter
+    // public double getPrintingCost() {
+    //     return printingCost;
+    // }
+
+    // public void setPrintingCost(double printingCost) {
+    //     this.printingCost = printingCost;
+    // }
+
     @DBRef
     @JsonIgnore // Bỏ qua khi tuần tự hóa JSON
     private Printer printer; // Tham chiếu đến tài liệu Printer
