@@ -1,0 +1,30 @@
+{
+    "students":
+    [
+        {
+         "name": "Thinh ddsdsdfd",
+         "details": "BKU student",
+         "gender": "Male",
+         "rating": "5",
+         "id": "1"
+        },
+
+        {
+        "name": "Thinh sdd",
+        "details": "BKU student",
+        "gender": "Male",
+        "rating": "5",
+        "id": "2"
+        },
+
+
+        {
+        "name": "Thinh Tsdddng",
+        "details": "BKU student",
+        "gender": "Male",
+        "rating": "5",
+        "id": "3"
+        }
+    ]
+
+}

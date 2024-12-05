@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Moving Dots</title>
+  <style>
+    canvas {
+      display: block;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="myCanvas" width="800" height="600"></canvas>
+
+  <script>
+    const canvas = document.getElementById('myCanvas');
+    const ctx = canvas.getContext('2d');
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const dots = [];
+    const dotRadius = 5;
+    const dotCount = 100;
+
+    // Tạo các chấm tròn ban đầu
+    for (let i = 0; i < dotCount; i++) {
+      dots.push({
+        x: centerX,
+        y: centerY,
+        angle: Math.random() * 2 * Math.PI,
+        speed: Math.random() * 3 + 1
+      });
+    }
+
+    // Hàm di chuyển các chấm tròn
+    function moveDots() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < dots.length; i++) {
+        const dot = dots[i];
+
+        // Tính toán vị trí mới của chấm tròn
+        dot.x += Math.cos(dot.angle) * dot.speed;
+        dot.y += Math.sin(dot.angle) * dot.speed;
+
+        // Vẽ chấm tròn
+        ctx.beginPath();
+        ctx.arc(dot.x, dot.y, dotRadius, 0, 2 * Math.PI);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+      }
+
+      requestAnimationFrame(moveDots);
+    }
+
+    moveDots();
+  </script>
+</body>
+</html>
