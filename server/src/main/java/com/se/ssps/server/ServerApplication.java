@@ -1,6 +1,3 @@
-public class ServerApplication {
-    
-}
 package com.se.ssps.server;
 
 import org.springframework.scheduling.annotation.EnableScheduling;
