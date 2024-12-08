@@ -496,22 +496,43 @@ public class StudentServiceImpl implements StudentService {
         pageUnitRepo.save(pageUnitPrice);
     }
 
+    // @Override
+    // public List<PrinterStudentDto> findAllPrinterForStudents() {
+    //     // Lấy tất cả máy in
+    //     List<Printer> printers = printerRepository.findAll();
+    //     // Chuyển đổi sang DTO chỉ chứa thông tin cần thiết
+    //     return printers.stream()
+    //             .map(printer -> new PrinterStudentDto(
+    //                     printer.getStatus(),
+    //                     printer.getId(),
+    //                     printer.getRoom() != null ? printer.getRoom().getRoomName() : "Unknown" // Kiểm tra null để
+    //                                                                                             // tránh lỗi
+
+    //             ))
+    //             .collect(Collectors.toList());
+    // }
+
     @Override
     public List<PrinterStudentDto> findAllPrinterForStudents() {
-        // Lấy tất cả máy in
         List<Printer> printers = printerRepository.findAll();
-        // Chuyển đổi sang DTO chỉ chứa thông tin cần thiết
         return printers.stream()
-                .map(printer -> new PrinterStudentDto(
-                        printer.getStatus(),
-                        printer.getId(),
-                        printer.getRoom() != null ? printer.getRoom().getRoomName() : "Unknown" // Kiểm tra null để
-                                                                                                // tránh lỗi
+                .map(printer -> {
+                    String roomName = printer.getRoom() != null ? printer.getRoom().getRoomName()
+                            : "Room không xác định";
+                    String buildingName = printer.getBuilding() != null ? printer.getBuilding().getBuildingName()
+                            : "Building không xác định";
+                    String fullRoomName = buildingName + "-" + roomName;
 
-                ))
+                    return new PrinterStudentDto(
+                            printer.getStatus(),
+                            fullRoomName, 
+                            printer.getId());
+                })
                 .collect(Collectors.toList());
     }
-
+    
+    
+    
     @Override
     public boolean isUsernameTaken(String username) {
         return studentRepository.existsByUsername(username);
