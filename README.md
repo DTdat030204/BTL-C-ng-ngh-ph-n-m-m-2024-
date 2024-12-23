@@ -95,14 +95,7 @@ npm install
 npm start
 ```
 
-6. Tại vị trí thư mục gốc của ứng dụng (`hcmut-ssps`), mở file cấu hình ứng dụng tại đường dẫn `server/src/main/resources/application.properties`, thay đổi các dòng sau với username và password của tài khoản MySQL mà bạn muốn sử dụng:
-
-```properties
-spring.datasource.username=...
-spring.datasource.password=...
-```
-
-7. Tại thư mục gốc, chạy các lệnh sau để khởi động chương trình phía server
+6. Tại thư mục gốc, chạy các lệnh sau để khởi động chương trình phía server
 
 ```bash
 cd server
