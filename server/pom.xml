@@ -59,7 +59,29 @@
 			<scope>test</scope>
 		</dependency>
 
-		
+		<!-- Swagger Dependencies
+    <dependency>
+        <groupId>io.springfox</groupId>
+        <artifactId>springfox-bootstarter</artifactId>
+        <version>3.0.0</version>
+    </dependency> -->
+
+
+	 <!-- Springdoc OpenAPI for Swagger support -->
+    <!-- <dependency>
+        <groupId>org.springdoc</groupId>
+        <artifactId>springdoc-openapi-ui</artifactId>
+        <version>1.6.11</version>
+    </dependency>
+     -->
+    <!-- Springdoc Core (Required for GroupedOpenApi) -->
+	<!-- Springdoc OpenAPI for Swagger support -->
+<!-- <dependency>
+    <groupId>org.springdoc</groupId>
+    <artifactId>springdoc-openapi-ui</artifactId>
+    <version>1.6.11</version>
+</dependency> -->
+
 	</dependencies>
 
 	
